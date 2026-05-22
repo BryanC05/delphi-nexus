@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/newsapi/:path*",
+      "destination": "https://newsapi.org/v2/:path*"
+    },
+    {
+      "source": "/api/mediastack/:path*",
+      "destination": "http://api.mediastack.com/v1/:path*"
+    }
+  ]
+}

@@ -57,8 +57,12 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate }) => {
           const newsApiParams: any = { apiKey: process.env.REACT_APP_NEWSAPI_API_KEY, country, category, page, pageSize: 20 };
           if (activeQuery) newsApiParams.q = activeQuery;
 
+          const isProd = process.env.NODE_ENV === 'production';
+          const newsApiBaseUrl = isProd ? '/api/newsapi' : 'https://newsapi.org/v2';
+          const mediastackBaseUrl = isProd ? '/api/mediastack' : 'http://api.mediastack.com/v1';
+
           const newsApiPromise = process.env.REACT_APP_NEWSAPI_API_KEY
-            ? axios.get(`https://newsapi.org/v2/top-headlines`, {
+            ? axios.get(`${newsApiBaseUrl}/top-headlines`, {
                 params: newsApiParams,
               })
             : Promise.resolve({ data: { articles: [] } });
@@ -67,7 +71,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate }) => {
           if (activeQuery) mediastackParams.keywords = activeQuery;
 
           const mediastackPromise = process.env.REACT_APP_MEDIASTACK_API_KEY
-            ? axios.get(`http://api.mediastack.com/v1/news`, {
+            ? axios.get(`${mediastackBaseUrl}/news`, {
                 params: mediastackParams,
               })
             : Promise.resolve({ data: { data: [] } });
