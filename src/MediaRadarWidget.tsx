@@ -19,13 +19,15 @@ type MediaRadarProps = {
 const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleCollapse }) => {
   const [anime, setAnime] = useState<MediaItem[]>([]);
   const [tvShows, setTvShows] = useState<MediaItem[]>([]);
+  const [movies, setMovies] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isOverlayOpen, setIsOverlayOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'anime' | 'tv'>('anime');
+  const [activeTab, setActiveTab] = useState<'anime' | 'tv' | 'movies'>('anime');
 
   useEffect(() => {
     const fetchMedia = async () => {
       setIsLoading(true);
+      let pendingRequests = 2; // Anime and TV are default
       try {
         // Fetch Anime (Jikan API)
         axios.get('https://api.jikan.moe/v4/seasons/upcoming?limit=12').then(res => {
@@ -52,6 +54,28 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
           setTvShows(tvData);
         }).catch(e => console.error('TVMaze API Error:', e));
 
+        // Fetch Upcoming Movies (TMDB API)
+        const tmdbToken = process.env.REACT_APP_TMDB_ACCESSTOKEN;
+        const tmdbKey = process.env.REACT_APP_TMDB_API_KEY;
+        
+        if (tmdbToken || tmdbKey) {
+          const headers = tmdbToken ? { Authorization: `Bearer ${tmdbToken}` } : {};
+          const params = tmdbKey ? { api_key: tmdbKey } : {};
+          
+          axios.get('https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1', { headers, params })
+            .then(res => {
+              const movieData = res.data.results.filter((item: any) => item.poster_path).map((item: any) => ({
+                id: item.id,
+                title: item.title,
+                imageUrl: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
+                summary: item.overview || 'No database entry available.',
+                date: `Releasing: ${item.release_date}`,
+              }));
+              setMovies(movieData.slice(0, 12));
+            })
+            .catch(e => console.error('TMDB API Error:', e));
+        }
+
       } finally {
         setIsLoading(false);
       }
@@ -60,7 +84,7 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
     fetchMedia();
   }, []);
 
-  const displayData = activeTab === 'anime' ? anime : tvShows;
+  const displayData = activeTab === 'anime' ? anime : activeTab === 'tv' ? tvShows : movies;
 
   return (
     <>
@@ -91,6 +115,15 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
                     <div style={{ fontWeight: 'bold', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{tvShows[0]?.title}</div>
                   </div>
                 </div>
+                {movies.length > 0 && (
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <img src={movies[0].imageUrl} alt="poster" style={{ width: '40px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--accent-color)' }} />
+                    <div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--accent-color)', fontFamily: 'var(--font-tech)' }}>UPCOMING MOVIE</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{movies[0]?.title}</div>
+                    </div>
+                  </div>
+                )}
                 <button 
                   className="news-search-button" 
                   style={{ width: '100%', marginTop: '8px' }} 
@@ -117,6 +150,7 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
             <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '1px solid var(--card-border)' }}>
               <h3 className={`tab ${activeTab === 'anime' ? 'active' : ''}`} onClick={() => { playClickSound(); setActiveTab('anime'); }} onMouseEnter={playHoverSound}>Upcoming Anime</h3>
               <h3 className={`tab ${activeTab === 'tv' ? 'active' : ''}`} onClick={() => { playClickSound(); setActiveTab('tv'); }} onMouseEnter={playHoverSound}>Airing TV Shows</h3>
+              {movies.length > 0 && <h3 className={`tab ${activeTab === 'movies' ? 'active' : ''}`} onClick={() => { playClickSound(); setActiveTab('movies'); }} onMouseEnter={playHoverSound}>Upcoming Movies</h3>}
             </div>
 
             <div className="media-grid">
