@@ -70,13 +70,28 @@ html {
   font-family: var(--font-tech);
 }
 
-/* Widgets (Weather & Crypto) */
+/* Feature Sections */
 .widgets-container {
-  display: grid;
-  /* Automatically adjust columns based on screen width */
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 24px;
   margin-bottom: 48px;
+}
+
+.widgets-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .widgets-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .draggable-wrapper:nth-child(odd):last-child {
+    grid-column: 1 / -1;
+  }
 }
 
 .widget {
@@ -85,12 +100,7 @@ html {
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   position: relative;
-  /* Force GPU Hardware Acceleration */
-  transform: translateZ(0);
-  will-change: transform;
 }
 
 /* Tech HUD Corner Accents */
@@ -143,18 +153,6 @@ html {
   color: var(--text-muted);
 }
 
-.weather-temp-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.weather-icon-large {
-  width: 60px;
-  height: 60px;
-  margin-left: -10px; /* Offset the natural padding in the OpenWeather icon */
-}
-
 /* Collapse Button */
 .collapse-btn {
   background: transparent;
@@ -169,6 +167,51 @@ html {
 .collapse-btn:hover {
   color: var(--accent-color);
   text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+/* Remove Button */
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-tech);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0 4px;
+}
+
+.remove-btn:hover {
+  color: #fc8181;
+  text-shadow: 0 0 8px rgba(252, 129, 129, 0.5);
+}
+
+/* API Status Indicator */
+.api-indicator {
+  font-size: 0.65rem;
+  font-family: var(--font-tech);
+  color: #48bb78;
+  border: 1px solid rgba(72, 187, 120, 0.5);
+  background: rgba(72, 187, 120, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.api-indicator::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background-color: #48bb78;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #48bb78;
+  animation: blink 2s infinite;
 }
 
 /* Boot Sequence */
@@ -287,30 +330,38 @@ html {
   font-family: var(--font-tech);
 }
 
-.forecast-list {
+.forecast-row {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
 }
 
-.forecast-item {
+.forecast-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.forecast-card {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  font-size: 0.95rem;
-  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-width: 80px;
   font-family: var(--font-tech);
 }
 
-.forecast-desc {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.forecast-time {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
-.weather-icon-small {
-  width: 30px;
-  height: 30px;
+.forecast-temp {
+  font-size: 1.2rem;
+  color: var(--text-main);
+  font-weight: bold;
 }
 
 .exchange-current {
@@ -457,8 +508,6 @@ html {
   overflow: hidden;
   position: relative;
   z-index: 1;
-  transform: translateZ(0);
-  will-change: transform, box-shadow, border-color;
 }
 
 .news-card:hover {
@@ -533,25 +582,6 @@ html {
   overflow: hidden;
 }
 
-/* Drag and Drop Helpers */
-.draggable-wrapper {
-  position: relative;
-  cursor: grab;
-}
-
-.draggable-wrapper:active {
-  cursor: grabbing;
-}
-
-.drag-handle {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  color: var(--text-muted);
-  font-size: 1.2rem;
-  z-index: 2000; /* Stays above Leaflet map container */
-}
-
 .back-to-top-button {
   position: fixed;
   bottom: 30px;
@@ -568,11 +598,8 @@ html {
   cursor: pointer;
   font-weight: 600;
   letter-spacing: 2px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
-  transform: translateZ(0);
 }
 
 .back-to-top-button:hover {
@@ -580,6 +607,22 @@ html {
   box-shadow: var(--accent-glow);
   text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
   transform: translateY(-3px);
+}
+
+/* Drag and Drop Helpers */
+.draggable-wrapper {
+  position: relative;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+}
+
+.draggable-wrapper > .widget {
+  flex-grow: 1;
+}
+
+.draggable-wrapper:active {
+  cursor: grabbing;
 }
 
 /* Settings UI */
@@ -599,11 +642,8 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
-  transform: translateZ(0);
 }
 
 .settings-btn:hover {

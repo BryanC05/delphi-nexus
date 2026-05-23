@@ -3,13 +3,20 @@ import './App.css';
 import WeatherWidget from './WeatherWidget';
 import WorldClockWidget from './WorldClockWidget';
 import SystemStatusWidget from './SystemStatusWidget';
-import RadarWidget from './RadarWidget';
 import BootSequence from './BootSequence';
 import AITerminalWidget from './AITerminalWidget';
 import ThreatMonitorWidget from './ThreatMonitorWidget';
 import MediaRadarWidget from './MediaRadarWidget';
+import IntelWidget from './IntelWidget';
+import BioHazardWidget from './BioHazardWidget';
+import SolarWeatherWidget from './SolarWeatherWidget';
+import LaunchTrackerWidget from './LaunchTrackerWidget';
+import CyberPulseWidget from './CyberPulseWidget';
 import NewsFeed from './NewsFeed';
 import { playHoverSound, playClickSound, toggleSound, isSoundEnabled } from './soundUtils';
+import { auth, db, googleProvider } from './firebase';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const App: React.FC = () => {
   // Boot Sequence State (Tracks if the user has already seen the boot sequence this session)
@@ -20,27 +27,21 @@ const App: React.FC = () => {
   const [isLocating, setIsLocating] = useState<boolean>(true);
   const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
   
-  // Drag and Drop Widget Ordering State
-  const [widgetOrder, setWidgetOrder] = useState<string[]>(() => {
-    const saved = JSON.parse(localStorage.getItem('widgetOrder') || '["weather", "clock"]');
-    // Ensure the new radar widget gets injected for existing users!
-    if (!saved.includes('radar')) saved.push('radar');
-    // Inject the new threat monitor widget!
-    if (!saved.includes('threats')) saved.push('threats');
-    // Inject the new media radar widget!
-    if (!saved.includes('media')) saved.push('media');
-    // Filter out the exchange and system widgets if they exist from previous saves
-    return saved.filter((id: string) => id !== 'exchange' && id !== 'system');
-  });
-
   // Settings & Theme State
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [soundOn, setSoundOn] = useState<boolean>(isSoundEnabled);
   const [activeTheme, setActiveTheme] = useState<string>(() => localStorage.getItem('activeTheme') || 'Neon Cyan');
   const [showAI, setShowAI] = useState<boolean>(false);
   const [newsContext, setNewsContext] = useState<string>('');
-  const [poisContext, setPoisContext] = useState<string>('');
   const [collapsedWidgets, setCollapsedWidgets] = useState<Record<string, boolean>>(() => JSON.parse(localStorage.getItem('collapsedWidgets') || '{}'));
+  const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [unlockInput, setUnlockInput] = useState<string>('');
+  const [newsSearchTrigger, setNewsSearchTrigger] = useState<{ query: string; ts: number } | null>(null);
+  const [activeWidgets, setActiveWidgets] = useState<string[]>(() => {
+    const saved = localStorage.getItem('activeWidgets');
+    return saved ? JSON.parse(saved) : ['weather', 'clock', 'bio', 'solar', 'launch', 'cyber', 'threats', 'media', 'intel'];
+  });
+  const [user, setUser] = useState<any>(null);
 
   const THEMES = [
     { name: 'Neon Cyan', hex: '#00f0ff', rgb: '0, 240, 255' },
@@ -60,6 +61,47 @@ const App: React.FC = () => {
     document.documentElement.style.setProperty('--accent-glow', `0 0 10px rgba(${theme.rgb}, 0.3), inset 0 0 10px rgba(${theme.rgb}, 0.05)`);
     localStorage.setItem('activeTheme', activeTheme);
   }, [activeTheme]);
+
+  useEffect(() => {
+    if (!auth) return;
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
+      setUser(currentUser);
+      if (currentUser) {
+        try {
+          const docRef = doc(db, 'users', currentUser.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.activeWidgets) {
+              setActiveWidgets(data.activeWidgets);
+              localStorage.setItem('activeWidgets', JSON.stringify(data.activeWidgets));
+            }
+            if (data.collapsedWidgets) {
+              setCollapsedWidgets(data.collapsedWidgets);
+              localStorage.setItem('collapsedWidgets', JSON.stringify(data.collapsedWidgets));
+            }
+            if (data.activeTheme) {
+              setActiveTheme(data.activeTheme);
+              localStorage.setItem('activeTheme', data.activeTheme);
+            }
+          }
+        } catch (e) {
+          console.error('Error fetching layout:', e);
+        }
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  const syncToCloud = async (updates: any) => {
+    if (!auth?.currentUser) return;
+    try {
+      const docRef = doc(db, 'users', auth.currentUser.uid);
+      await setDoc(docRef, updates, { merge: true });
+    } catch (e) {
+      console.error("Cloud sync failed:", e);
+    }
+  };
 
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -114,23 +156,6 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    e.dataTransfer.setData('index', index.toString());
-  };
-
-  const handleDrop = (e: React.DragEvent, index: number) => {
-    const draggedIdx = parseInt(e.dataTransfer.getData('index'));
-    if (draggedIdx === index) return;
-    
-    const newOrder = [...widgetOrder];
-    const [draggedWidget] = newOrder.splice(draggedIdx, 1);
-    newOrder.splice(index, 0, draggedWidget);
-    
-    setWidgetOrder(newOrder);
-    localStorage.setItem('widgetOrder', JSON.stringify(newOrder));
-    playClickSound();
-  };
-
   const handleSoundToggle = () => {
     const newVal = !soundOn;
     setSoundOn(newVal);
@@ -142,20 +167,105 @@ const App: React.FC = () => {
     setNewsContext(articles.slice(0, 5).map(a => a.title).join(' | '));
   }, []);
 
-  const handlePoisUpdate = useCallback((pois: any[]) => {
-    setPoisContext(pois.slice(0, 10).map(p => p.tags?.name || p.tags?.amenity || p.tags?.shop).filter(Boolean).join(', '));
-  }, []);
-
   const toggleCollapse = (id: string) => {
     setCollapsedWidgets(prev => {
       const next = { ...prev, [id]: !prev[id] };
       localStorage.setItem('collapsedWidgets', JSON.stringify(next));
+      syncToCloud({ collapsedWidgets: next });
       return next;
     });
     playClickSound();
   };
 
+  const toggleWidgetActive = (id: string) => {
+    setActiveWidgets(prev => {
+      const newWidgets = prev.includes(id) ? prev.filter(w => w !== id) : [...prev, id];
+      localStorage.setItem('activeWidgets', JSON.stringify(newWidgets));
+      syncToCloud({ activeWidgets: newWidgets });
+      return newWidgets;
+    });
+    playClickSound();
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData('index', index.toString());
+  };
+
+  const handleDrop = (e: React.DragEvent, index: number) => {
+    const draggedIdx = parseInt(e.dataTransfer.getData('index'));
+    if (draggedIdx === index || isNaN(draggedIdx)) return;
+    
+    const newOrder = [...activeWidgets];
+    const [draggedWidget] = newOrder.splice(draggedIdx, 1);
+    newOrder.splice(index, 0, draggedWidget);
+    
+    setActiveWidgets(newOrder);
+    localStorage.setItem('activeWidgets', JSON.stringify(newOrder));
+    playClickSound();
+  };
+
+  const WIDGET_OPTIONS = [
+    { id: 'weather', label: 'Weather' },
+    { id: 'clock', label: 'Global TimeSync' },
+    { id: 'bio', label: 'Bio-Hazard Monitor' },
+    { id: 'solar', label: 'Solar Weather' },
+    { id: 'launch', label: 'Orbital Launch Tracker' },
+    { id: 'cyber', label: 'Cyber Pulse' },
+    { id: 'threats', label: 'Zero-Day Monitor' },
+    { id: 'media', label: 'Media Radar' },
+    { id: 'intel', label: 'Daily Intel' }
+  ];
+
+  const handleTerminalCommand = (cmd: string, arg: string) => {
+    if (cmd === '/theme') {
+      const themeMap: Record<string, string> = {
+        'matrix': 'Matrix Green',
+        'neon': 'Neon Cyan',
+        'alert': 'Alert Red',
+        'purple': 'Deep Purple'
+      };
+      const mappedTheme = themeMap[arg] || THEMES.find(t => t.name.toLowerCase().includes(arg))?.name;
+      if (mappedTheme) {
+        setActiveTheme(mappedTheme);
+        syncToCloud({ activeTheme: mappedTheme });
+        return true;
+      }
+      return false;
+    }
+    if (cmd === '/lock') {
+      setIsLocked(true);
+      return true;
+    }
+    if (cmd === '/search') {
+      if (arg.trim()) {
+        setNewsSearchTrigger({ query: arg.trim(), ts: Date.now() });
+        return true;
+      }
+      return false;
+    }
+    return false;
+  };
+
   if (isBooting) return <BootSequence onComplete={handleBootComplete} />;
+
+  if (isLocked) {
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#000', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <h1 style={{ color: '#fc8181', fontFamily: 'var(--font-tech)', fontSize: '3rem', letterSpacing: '4px', marginBottom: '24px', textShadow: '0 0 15px rgba(252, 129, 129, 0.5)' }}>SYSTEM LOCKED</h1>
+        <form onSubmit={e => { e.preventDefault(); if (unlockInput === 'admin') { setIsLocked(false); playClickSound(); } setUnlockInput(''); }}>
+          <input 
+            type="password" 
+            value={unlockInput} 
+            onChange={e => setUnlockInput(e.target.value)} 
+            placeholder="ENTER OVERRIDE CODE" 
+            autoFocus 
+            style={{ background: 'transparent', border: '1px solid #fc8181', color: '#fc8181', padding: '12px 24px', fontSize: '1.2rem', fontFamily: 'var(--font-tech)', textAlign: 'center', outline: 'none', borderRadius: '4px', letterSpacing: '2px' }} 
+          />
+        </form>
+        <div style={{ marginTop: '16px', color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', fontSize: '0.8rem' }}>Hint: override code is "admin"</div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -171,7 +281,8 @@ const App: React.FC = () => {
       {!isLocating && (
         <main>
           <section className="widgets-container">
-              {widgetOrder.map((widgetId, index) => (
+            <div className="widgets-grid">
+              {activeWidgets.map((widgetId, index) => (
                 <div 
                   key={widgetId} 
                   draggable 
@@ -181,16 +292,20 @@ const App: React.FC = () => {
                   className="draggable-wrapper"
                   onMouseEnter={playHoverSound}
                 >
-                  <div className="drag-handle">≡</div>
-                  {widgetId === 'weather' && <WeatherWidget location={location} isCollapsed={collapsedWidgets['weather']} onToggleCollapse={() => toggleCollapse('weather')} />}
-                  {widgetId === 'clock' && <WorldClockWidget isCollapsed={collapsedWidgets['clock']} onToggleCollapse={() => toggleCollapse('clock')} />}
-                  {widgetId === 'radar' && <RadarWidget location={location} onPoisUpdate={handlePoisUpdate} isCollapsed={collapsedWidgets['radar']} onToggleCollapse={() => toggleCollapse('radar')} />}
-                  {widgetId === 'threats' && <ThreatMonitorWidget isCollapsed={collapsedWidgets['threats']} onToggleCollapse={() => toggleCollapse('threats')} />}
-                  {widgetId === 'media' && <MediaRadarWidget isCollapsed={collapsedWidgets['media']} onToggleCollapse={() => toggleCollapse('media')} />}
+                  {widgetId === 'weather' && <WeatherWidget location={location} isCollapsed={collapsedWidgets['weather']} onToggleCollapse={() => toggleCollapse('weather')} onRemove={() => toggleWidgetActive('weather')} />}
+                  {widgetId === 'clock' && <WorldClockWidget isCollapsed={collapsedWidgets['clock']} onToggleCollapse={() => toggleCollapse('clock')} onRemove={() => toggleWidgetActive('clock')} />}
+                  {widgetId === 'bio' && <BioHazardWidget location={location} isCollapsed={collapsedWidgets['bio']} onToggleCollapse={() => toggleCollapse('bio')} onRemove={() => toggleWidgetActive('bio')} />}
+                  {widgetId === 'solar' && <SolarWeatherWidget isCollapsed={collapsedWidgets['solar']} onToggleCollapse={() => toggleCollapse('solar')} onRemove={() => toggleWidgetActive('solar')} />}
+                  {widgetId === 'launch' && <LaunchTrackerWidget isCollapsed={collapsedWidgets['launch']} onToggleCollapse={() => toggleCollapse('launch')} onRemove={() => toggleWidgetActive('launch')} />}
+                  {widgetId === 'cyber' && <CyberPulseWidget isCollapsed={collapsedWidgets['cyber']} onToggleCollapse={() => toggleCollapse('cyber')} onRemove={() => toggleWidgetActive('cyber')} />}
+                  {widgetId === 'threats' && <ThreatMonitorWidget isCollapsed={collapsedWidgets['threats']} onToggleCollapse={() => toggleCollapse('threats')} onRemove={() => toggleWidgetActive('threats')} />}
+                  {widgetId === 'media' && <MediaRadarWidget isCollapsed={collapsedWidgets['media']} onToggleCollapse={() => toggleCollapse('media')} onRemove={() => toggleWidgetActive('media')} />}
+                  {widgetId === 'intel' && <IntelWidget isCollapsed={collapsedWidgets['intel']} onToggleCollapse={() => toggleCollapse('intel')} onRemove={() => toggleWidgetActive('intel')} />}
                 </div>
               ))}
+            </div>
           </section>
-          <NewsFeed countryCode={countryCode} onNewsUpdate={handleNewsUpdate} />
+          <NewsFeed countryCode={countryCode} onNewsUpdate={handleNewsUpdate} searchTrigger={newsSearchTrigger} />
         </main>
       )}
 
@@ -211,7 +326,36 @@ const App: React.FC = () => {
               <h2 style={{ margin: 0, color: 'var(--accent-color)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', letterSpacing: '2px' }}>System Config</h2>
               <button onClick={() => { playClickSound(); setShowSettings(false); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
             </div>
+
+            <div className="settings-section">
+              <h4 style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', marginBottom: '12px' }}>Cloud Uplink (Firebase)</h4>
+              {user ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ color: 'var(--accent-color)', fontSize: '0.85rem', fontFamily: 'var(--font-tech)' }}>Authenticated as: {user.email}</div>
+                  <button className="news-search-button" onClick={() => { playClickSound(); signOut(auth); }} onMouseEnter={playHoverSound} style={{ width: '100%', borderColor: '#fc8181', color: '#fc8181' }}>DISCONNECT (LOGOUT)</button>
+                </div>
+              ) : (
+                <button className="news-search-button" onClick={() => { playClickSound(); signInWithPopup(auth, googleProvider); }} onMouseEnter={playHoverSound} style={{ width: '100%' }}>ESTABLISH UPLINK (GOOGLE LOGIN)</button>
+              )}
+            </div>
             
+            <div className="settings-section">
+              <h4 style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', marginBottom: '12px' }}>Active Modules</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {WIDGET_OPTIONS.map(opt => (
+                  <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontFamily: 'var(--font-tech)', fontSize: '0.85rem', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={activeWidgets.includes(opt.id)} 
+                      onChange={() => toggleWidgetActive(opt.id)}
+                      style={{ accentColor: 'var(--accent-color)' }}
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+
             <div className="settings-section">
               <h4 style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', marginBottom: '12px' }}>Audio Feedback</h4>
               <button className={`sound-toggle ${soundOn ? 'active' : ''}`} onClick={handleSoundToggle} onMouseEnter={playHoverSound}>
@@ -227,7 +371,7 @@ const App: React.FC = () => {
                     key={theme.name}
                     className={`theme-swatch ${activeTheme === theme.name ? 'active' : ''}`}
                     style={{ backgroundColor: theme.hex, boxShadow: activeTheme === theme.name ? `0 0 15px ${theme.hex}` : 'none' }}
-                    onClick={() => { setActiveTheme(theme.name); playClickSound(); }}
+                    onClick={() => { setActiveTheme(theme.name); syncToCloud({ activeTheme: theme.name }); playClickSound(); }}
                     onMouseEnter={playHoverSound}
                     title={theme.name}
                   />
@@ -242,7 +386,7 @@ const App: React.FC = () => {
         AI
       </button>
 
-      <AITerminalWidget isOpen={showAI} onClose={() => setShowAI(false)} contextData={`Top Headlines: ${newsContext}. Nearby Places: ${poisContext}.`} />
+      <AITerminalWidget isOpen={showAI} onClose={() => setShowAI(false)} contextData={`Top Headlines: ${newsContext}.`} onCommand={handleTerminalCommand} />
     </div>
     </>
   );

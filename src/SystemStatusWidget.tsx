@@ -19,8 +19,11 @@ const SystemStatusWidget: React.FC = () => {
            const handleResult = (pingValue: number) => {
         if (isMounted) {
           setPingData(prev => [...prev.slice(1), { time: Date.now().toString(), ping: pingValue }]);
-          timeoutId = setTimeout(checkPing, 1500);
+          timeoutId = setTimeout(checkPing, 4000); // Check every 4 seconds to save CPU/Network
         }
+        // Clear handlers so the image gets Garbage Collected from memory instantly
+        img.onload = null;
+        img.onerror = null;
       };
 
       img.onload = () => handleResult(Math.floor(performance.now() - start));
@@ -41,7 +44,7 @@ const SystemStatusWidget: React.FC = () => {
   const currentPing = pingData.length > 0 ? pingData[pingData.length - 1].ping : 0;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(13, 22, 37, 0.7)', padding: '8px 16px', borderRadius: 'var(--radius)', border: '1px solid var(--card-border)', boxShadow: 'var(--shadow-sm)', backdropFilter: 'blur(4px)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(13, 22, 37, 0.85)', padding: '8px 16px', borderRadius: 'var(--radius)', border: '1px solid var(--card-border)', boxShadow: 'var(--shadow-sm)' }}>
       <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', fontSize: '0.85rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Uplink</span>
       <div style={{ width: '60px', height: '24px' }}>
         <ResponsiveContainer width="100%" height="100%">

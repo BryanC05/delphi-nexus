@@ -6,9 +6,10 @@ import { playHoverSound, playClickSound } from './soundUtils';
 type NewsFeedProps = {
   countryCode: string;
   onNewsUpdate?: (articles: NewsArticle[]) => void;
+  searchTrigger?: { query: string; ts: number } | null;
 };
 
-const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate }) => {
+const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTrigger }) => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasKeys, setHasKeys] = useState<boolean>(true);
@@ -38,6 +39,16 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate }) => {
   // Save preferences to localStorage
   useEffect(() => { localStorage.setItem('newsCategory', category); }, [category]);
   useEffect(() => { localStorage.setItem('newsQuery', activeQuery); localStorage.setItem('bookmarks', JSON.stringify(bookmarks)); }, [activeQuery, bookmarks]);
+
+  useEffect(() => {
+    if (searchTrigger) {
+      setQueryInput(searchTrigger.query);
+      setActiveQuery(searchTrigger.query);
+      setPage(1);
+      fallbackCountryRef.current = null;
+      setActiveTab('feed');
+    }
+  }, [searchTrigger]);
 
   const categories = ['general', 'business', 'technology', 'sports', 'entertainment', 'health', 'science'];
 
@@ -184,7 +195,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate }) => {
   return (
     <>
       <div className="news-header">
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
           <h2 
             className={`section-title tab ${activeTab === 'feed' ? 'active' : ''}`} 
             onClick={() => { playClickSound(); setActiveTab('feed'); }}
@@ -195,6 +206,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate }) => {
             onClick={() => { playClickSound(); setActiveTab('saved'); }}
             onMouseEnter={playHoverSound}
           >Saved ({bookmarks.length})</h2>
+          {!isLoading && hasKeys && <span className="api-indicator">API ONLINE</span>}
         </div>
         
         {activeTab === 'feed' && (

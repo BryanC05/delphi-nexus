@@ -9,14 +9,16 @@ type MediaItem = {
   imageUrl: string;
   summary: string;
   date: string;
+  type: 'anime' | 'tv' | 'movie';
 };
 
 type MediaRadarProps = {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onRemove?: () => void;
 };
 
-const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleCollapse }) => {
+const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleCollapse, onRemove }) => {
   const [anime, setAnime] = useState<MediaItem[]>([]);
   const [tvShows, setTvShows] = useState<MediaItem[]>([]);
   const [movies, setMovies] = useState<MediaItem[]>([]);
@@ -37,24 +39,12 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
             imageUrl: item.images.jpg.image_url,
             summary: item.synopsis || 'No database entry available.',
             date: item.aired?.string || 'Upcoming',
+            type: 'anime',
           }));
           setAnime(animeData);
         }).catch(e => console.error('Anime API Error:', e));
 
-        // Fetch General TV Shows (TVMaze API - US Schedule for Today)
-        axios.get('https://api.tvmaze.com/schedule?country=US').then(res => {
-          const tvData = res.data.filter((item: any) => item.show && item.show.image).map((item: any) => ({
-            id: item.id,
-            title: item.show.name,
-            subtitle: item.name, // Episode name
-            imageUrl: item.show.image?.medium || item.show.image?.original,
-            summary: item.show.summary?.replace(/<[^>]+>/g, '') || 'No database entry available.', // Strip HTML tags
-            date: `Today at ${item.airtime}`,
-          }));
-          setTvShows(tvData);
-        }).catch(e => console.error('TVMaze API Error:', e));
-
-        // Fetch Upcoming Movies (TMDB API)
+        // Fetch Popular TV Shows & Upcoming Movies (TMDB API)
         const tmdbToken = process.env.REACT_APP_TMDB_ACCESSTOKEN;
         const tmdbKey = process.env.REACT_APP_TMDB_API_KEY;
         
@@ -70,10 +60,25 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
                 imageUrl: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
                 summary: item.overview || 'No database entry available.',
                 date: `Releasing: ${item.release_date}`,
+                type: 'movie',
               }));
               setMovies(movieData.slice(0, 12));
             })
             .catch(e => console.error('TMDB API Error:', e));
+
+          axios.get('https://api.themoviedb.org/3/tv/popular?language=en-US&page=1', { headers, params })
+            .then(res => {
+              const tvData = res.data.results.filter((item: any) => item.poster_path).map((item: any) => ({
+                id: item.id,
+                title: item.name,
+                imageUrl: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
+                summary: item.overview || 'No database entry available.',
+                date: `Rating: ${item.vote_average}/10`,
+                type: 'tv',
+              }));
+              setTvShows(tvData.slice(0, 12));
+            })
+            .catch(e => console.error('TMDB TV API Error:', e));
         }
 
       } finally {
@@ -91,8 +96,12 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
       {/* Dashboard Widget View */}
       <div className="widget media-widget" style={isCollapsed ? { padding: '24px', overflow: 'hidden' } : { padding: '24px', overflow: 'hidden' }}>
         <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--card-border)', paddingBottom: isCollapsed ? 0 : '8px' }}>
-          <span>Media Radar</span>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span>Media Radar</span>
+            {!isLoading && <span className="api-indicator">API ONLINE</span>}
+          </div>
           <button className="collapse-btn" onClick={onToggleCollapse} onMouseEnter={playHoverSound}>{isCollapsed ? '+' : '-'}</button>
+          <button className="remove-btn" onClick={onRemove} onMouseEnter={playHoverSound}>×</button>
         </h3>
         
         {!isCollapsed && (
@@ -149,7 +158,7 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
             
             <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', borderBottom: '1px solid var(--card-border)' }}>
               <h3 className={`tab ${activeTab === 'anime' ? 'active' : ''}`} onClick={() => { playClickSound(); setActiveTab('anime'); }} onMouseEnter={playHoverSound}>Upcoming Anime</h3>
-              <h3 className={`tab ${activeTab === 'tv' ? 'active' : ''}`} onClick={() => { playClickSound(); setActiveTab('tv'); }} onMouseEnter={playHoverSound}>Airing TV Shows</h3>
+              <h3 className={`tab ${activeTab === 'tv' ? 'active' : ''}`} onClick={() => { playClickSound(); setActiveTab('tv'); }} onMouseEnter={playHoverSound}>Popular TV</h3>
               {movies.length > 0 && <h3 className={`tab ${activeTab === 'movies' ? 'active' : ''}`} onClick={() => { playClickSound(); setActiveTab('movies'); }} onMouseEnter={playHoverSound}>Upcoming Movies</h3>}
             </div>
 
@@ -159,7 +168,6 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
                   <img src={item.imageUrl} alt={item.title} className="media-poster" />
                   <div className="media-info">
                     <h4 style={{ margin: '0 0 4px 0', fontSize: '1rem', color: 'var(--text-main)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.title}</h4>
-                    {item.subtitle && <div style={{ fontSize: '0.8rem', color: 'var(--text-main)', marginBottom: '4px', opacity: 0.8 }}>Eps: {item.subtitle}</div>}
                     <div style={{ fontSize: '0.75rem', color: 'var(--accent-color)', fontFamily: 'var(--font-tech)', marginBottom: '8px' }}>{item.date}</div>
                     <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {item.summary}
@@ -168,7 +176,6 @@ const MediaRadarWidget: React.FC<MediaRadarProps> = ({ isCollapsed, onToggleColl
                 </div>
               ))}
             </div>
-
           </div>
         </div>
       )}

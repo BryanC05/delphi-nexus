@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { playHoverSound } from './soundUtils';
 
 type Threat = {
   id: string;
@@ -10,11 +11,13 @@ type Threat = {
 type ThreatMonitorProps = {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onRemove?: () => void;
 };
 
-const ThreatMonitorWidget: React.FC<ThreatMonitorProps> = ({ isCollapsed, onToggleCollapse }) => {
+const ThreatMonitorWidget: React.FC<ThreatMonitorProps> = ({ isCollapsed, onToggleCollapse, onRemove }) => {
   const [threats, setThreats] = useState<Threat[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -60,8 +63,12 @@ const ThreatMonitorWidget: React.FC<ThreatMonitorProps> = ({ isCollapsed, onTogg
   return (
     <div className="widget threat-widget" style={isCollapsed ? { padding: '24px', overflow: 'hidden' } : { padding: '24px', overflow: 'hidden' }}>
       <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--card-border)', paddingBottom: isCollapsed ? 0 : '8px' }}>
-        <span style={{ color: '#fc8181', textShadow: '0 0 8px rgba(252, 129, 129, 0.4)' }}>Zero-Day Monitor</span>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ color: '#fc8181', textShadow: '0 0 8px rgba(252, 129, 129, 0.4)' }}>Zero-Day Monitor</span>
+          {!isLoading && <span className="api-indicator">API ONLINE</span>}
+        </div>
         <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
+        <button className="remove-btn" onClick={onRemove} onMouseEnter={playHoverSound}>×</button>
       </h3>
       {!isCollapsed && (
         <div className="widget-content">
@@ -73,9 +80,27 @@ const ThreatMonitorWidget: React.FC<ThreatMonitorProps> = ({ isCollapsed, onTogg
                 <div key={idx} style={{ padding: '8px', background: 'rgba(252, 129, 129, 0.05)', borderLeft: `2px solid ${threat.score >= 9.0 ? '#fc8181' : '#f6ad55'}`, borderRadius: '0 4px 4px 0' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                     <strong style={{ color: '#fff', fontFamily: 'var(--font-tech)', fontSize: '0.9rem' }}>{threat.id}</strong>
-                    <span style={{ color: threat.score >= 9.0 ? '#fc8181' : '#f6ad55', fontFamily: 'var(--font-tech)', fontWeight: 'bold' }}>
-                      CVSS: {threat.score}
-                    </span>
+                    <div 
+                      style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      onMouseEnter={() => setHoveredIndex(idx)}
+                      onMouseLeave={() => setHoveredIndex(null)}
+                    >
+                      <span style={{ color: threat.score >= 9.0 ? '#fc8181' : '#f6ad55', fontFamily: 'var(--font-tech)', fontWeight: 'bold' }}>
+                        CVSS: {threat.score}
+                      </span>
+                      <span style={{ display: 'inline-flex', justifyContent: 'center', alignItems: 'center', width: '14px', height: '14px', borderRadius: '50%', border: '1px solid var(--text-muted)', color: 'var(--text-muted)', fontSize: '0.6rem', cursor: 'help' }}>?</span>
+                      
+                      {hoveredIndex === idx && (
+                        <div style={{ position: 'absolute', top: '100%', right: '0', marginTop: '8px', width: '220px', padding: '12px', background: 'rgba(13, 22, 37, 0.95)', border: '1px solid var(--accent-color)', borderRadius: 'var(--radius)', boxShadow: 'var(--accent-glow)', zIndex: 100, fontSize: '0.75rem', color: 'var(--text-main)', textTransform: 'none', fontWeight: 'normal', fontFamily: '-apple-system, sans-serif' }}>
+                          <div style={{ color: 'var(--accent-color)', fontWeight: 'bold', marginBottom: '4px', fontFamily: 'var(--font-tech)' }}>CVSS SCORE</div>
+                          <div style={{ marginBottom: '12px', color: 'var(--text-muted)', lineHeight: '1.4' }}>Common Vulnerability Scoring System measures software severity.</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}><span style={{ color: '#fc8181', fontWeight: 'bold' }}>Critical</span><span style={{ fontFamily: 'var(--font-tech)' }}>9.0 - 10.0</span></div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}><span style={{ color: '#f6ad55', fontWeight: 'bold' }}>High</span><span style={{ fontFamily: 'var(--font-tech)' }}>7.0 - 8.9</span></div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}><span style={{ color: '#ecc94b', fontWeight: 'bold' }}>Medium</span><span style={{ fontFamily: 'var(--font-tech)' }}>4.0 - 6.9</span></div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#48bb78', fontWeight: 'bold' }}>Low</span><span style={{ fontFamily: 'var(--font-tech)' }}>0.0 - 3.9</span></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
                     {threat.description}

@@ -12,9 +12,10 @@ type AITerminalWidgetProps = {
   isOpen: boolean;
   onClose: () => void;
   contextData?: string;
+  onCommand?: (cmd: string, arg: string) => boolean;
 };
 
-const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, contextData }) => {
+const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, contextData, onCommand }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     { role: 'system', content: 'Groq AI Uplink established. Awaiting input...' }
@@ -78,7 +79,10 @@ const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, co
   return (
     <div className={`ai-sidebar ${isOpen ? 'open' : ''}`}>
       <div className="ai-sidebar-header">
-        <h3>SYS_AI Terminal</h3>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <h3 style={{ margin: 0 }}>SYS_AI Terminal</h3>
+          <span className="api-indicator">API ONLINE</span>
+        </div>
         <button onClick={() => { playClickSound(); onClose(); }} className="ai-close-btn">×</button>
       </div>
       <div className="widget-content" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

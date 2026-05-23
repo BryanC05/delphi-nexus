@@ -129,7 +129,9 @@ const ExchangeWidget: React.FC<ExchangeWidgetProps> = ({ isCollapsed, onToggleCo
       <div className="widget exchange-widget">
         <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--card-border)' }}>
           <span>USD to IDR (30 Days)</span>
-          <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
+          </div>
         </h3>
         {!isCollapsed && <div className="widget-content" style={{ color: 'var(--text-muted)' }}>Loading exchange rates...</div>}
       </div>
@@ -141,7 +143,9 @@ const ExchangeWidget: React.FC<ExchangeWidgetProps> = ({ isCollapsed, onToggleCo
       <div className="widget exchange-widget">
         <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--card-border)' }}>
           <span>USD to IDR (30 Days)</span>
-          <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
+          </div>
         </h3>
         {!isCollapsed && <div className="widget-content" style={{ color: 'var(--text-muted)' }}>Exchange rate data currently unavailable.</div>}
       </div>
@@ -151,23 +155,28 @@ const ExchangeWidget: React.FC<ExchangeWidgetProps> = ({ isCollapsed, onToggleCo
   return (
     <div className="widget exchange-widget">
       <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--card-border)' }}>
-        <span>
-          USD to IDR (30 Days)
-          {isRealTime ? (
-            <span style={{ fontSize: '0.8rem', color: '#48bb78', marginLeft: '8px', fontWeight: 'bold' }}>
-              🔴 Live
-            </span>
-          ) : liveError ? (
-            <span style={{ fontSize: '0.8rem', color: '#fc8181', marginLeft: '8px', fontWeight: 'normal' }}>
-              ({liveError})
-            </span>
-          ) : isMockData && (
-            <span style={{ fontSize: '0.8rem', color: '#fc8181', marginLeft: '8px', fontWeight: 'normal' }}>
-              (Mock Data)
-            </span>
-          )}
-        </span>
-        <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span>
+            USD to IDR (30 Days)
+            {isRealTime ? (
+              <span style={{ fontSize: '0.8rem', color: '#48bb78', marginLeft: '8px', fontWeight: 'bold' }}>
+                🔴 Live
+              </span>
+            ) : liveError ? (
+              <span style={{ fontSize: '0.8rem', color: '#fc8181', marginLeft: '8px', fontWeight: 'normal' }}>
+                ({liveError})
+              </span>
+            ) : isMockData && (
+              <span style={{ fontSize: '0.8rem', color: '#fc8181', marginLeft: '8px', fontWeight: 'normal' }}>
+                (Mock Data)
+              </span>
+            )}
+          </span>
+          <span className="api-indicator">API ONLINE</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
+        </div>
       </h3>
       {!isCollapsed && (
         <div className="widget-content">

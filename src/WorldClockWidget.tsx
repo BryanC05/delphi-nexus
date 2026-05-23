@@ -16,9 +16,10 @@ const UNIQUE_TIMEZONES = Array.from(new Set(POPULAR_TIMEZONES));
 type WorldClockProps = {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onRemove?: () => void;
 };
 
-const WorldClockWidget: React.FC<WorldClockProps> = ({ isCollapsed, onToggleCollapse }) => {
+const WorldClockWidget: React.FC<WorldClockProps> = ({ isCollapsed, onToggleCollapse, onRemove }) => {
   const [time, setTime] = useState(new Date());
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [cities, setCities] = useState<ClockCity[]>(() => 
@@ -32,6 +33,20 @@ const WorldClockWidget: React.FC<WorldClockProps> = ({ isCollapsed, onToggleColl
 
   const getTime = (zone: string) => {
     return time.toLocaleTimeString('en-US', { timeZone: zone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  };
+
+  const getDateString = (zone: string) => {
+    return time.toLocaleDateString('en-US', { timeZone: zone, weekday: 'short', month: 'short', day: '2-digit' }).toUpperCase();
+  };
+
+  const getIsDay = (zone: string) => {
+    try {
+      const formatter = new Intl.DateTimeFormat('en-US', { timeZone: zone, hour: 'numeric', hour12: false });
+      const hour = parseInt(formatter.format(time));
+      return hour >= 6 && hour < 18; // Day is between 06:00 and 18:00
+    } catch (e) {
+      return true;
+    }
   };
 
   const formatName = (tz: string) => {
@@ -63,6 +78,7 @@ const WorldClockWidget: React.FC<WorldClockProps> = ({ isCollapsed, onToggleColl
             </button>
           )}
           <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
+          <button className="remove-btn" onClick={onRemove} onMouseEnter={playHoverSound}>×</button>
         </div>
       </h3>
       {!isCollapsed && (
@@ -77,10 +93,16 @@ const WorldClockWidget: React.FC<WorldClockProps> = ({ isCollapsed, onToggleColl
         ) : (
           <div className="widget-content" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             {cities.map((city, idx) => (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: 'var(--font-tech)', textTransform: 'uppercase' }}>{formatName(city.tz)}</span>
-                <span style={{ color: 'var(--accent-color)', fontSize: '1.4rem', fontFamily: 'var(--font-tech)', textShadow: '0 0 8px rgba(0, 240, 255, 0.4)' }}>
+              <div key={idx} style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.2)', padding: '8px 12px', borderRadius: '4px', borderLeft: `2px solid ${getIsDay(city.tz) ? '#eab308' : '#8b5cf6'}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '8px' }}>{formatName(city.tz)}</span>
+                  <span style={{ fontSize: '0.65rem', fontFamily: 'var(--font-tech)', color: getIsDay(city.tz) ? '#eab308' : '#8b5cf6' }}>{getIsDay(city.tz) ? '[DAY]' : '[NGT]'}</span>
+                </div>
+                <span style={{ color: 'var(--accent-color)', fontSize: '1.2rem', fontFamily: 'var(--font-tech)', textShadow: '0 0 8px rgba(0, 240, 255, 0.4)' }}>
                   {getTime(city.tz)}
+                </span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontFamily: 'var(--font-tech)', marginTop: '4px' }}>
+                  {getDateString(city.tz)}
                 </span>
               </div>
             ))}
