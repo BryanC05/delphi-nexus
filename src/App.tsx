@@ -12,6 +12,7 @@ import BioHazardWidget from './BioHazardWidget';
 import SolarWeatherWidget from './SolarWeatherWidget';
 import LaunchTrackerWidget from './LaunchTrackerWidget';
 import CyberPulseWidget from './CyberPulseWidget';
+import RadarWidget from './RadarWidget';
 import NewsFeed from './NewsFeed';
 import { playHoverSound, playClickSound, toggleSound, isSoundEnabled } from './soundUtils';
 import { auth, db, googleProvider } from './firebase';
@@ -39,7 +40,7 @@ const App: React.FC = () => {
   const [newsSearchTrigger, setNewsSearchTrigger] = useState<{ query: string; ts: number } | null>(null);
   const [activeWidgets, setActiveWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem('activeWidgets');
-    return saved ? JSON.parse(saved) : ['weather', 'clock', 'bio', 'solar', 'launch', 'cyber', 'threats', 'media', 'intel'];
+    return saved ? JSON.parse(saved) : ['weather', 'radar', 'clock', 'bio', 'solar', 'launch', 'cyber', 'threats', 'media', 'intel'];
   });
   const [user, setUser] = useState<any>(null);
 
@@ -206,6 +207,7 @@ const App: React.FC = () => {
 
   const WIDGET_OPTIONS = [
     { id: 'weather', label: 'Weather' },
+    { id: 'radar', label: 'Sat-Link Radar' },
     { id: 'clock', label: 'Global TimeSync' },
     { id: 'bio', label: 'Bio-Hazard Monitor' },
     { id: 'solar', label: 'Solar Weather' },
@@ -293,6 +295,7 @@ const App: React.FC = () => {
                   onMouseEnter={playHoverSound}
                 >
                   {widgetId === 'weather' && <WeatherWidget location={location} isCollapsed={collapsedWidgets['weather']} onToggleCollapse={() => toggleCollapse('weather')} onRemove={() => toggleWidgetActive('weather')} />}
+                  {widgetId === 'radar' && <RadarWidget location={location} isCollapsed={collapsedWidgets['radar']} onToggleCollapse={() => toggleCollapse('radar')} onRemove={() => toggleWidgetActive('radar')} />}
                   {widgetId === 'clock' && <WorldClockWidget isCollapsed={collapsedWidgets['clock']} onToggleCollapse={() => toggleCollapse('clock')} onRemove={() => toggleWidgetActive('clock')} />}
                   {widgetId === 'bio' && <BioHazardWidget location={location} isCollapsed={collapsedWidgets['bio']} onToggleCollapse={() => toggleCollapse('bio')} onRemove={() => toggleWidgetActive('bio')} />}
                   {widgetId === 'solar' && <SolarWeatherWidget isCollapsed={collapsedWidgets['solar']} onToggleCollapse={() => toggleCollapse('solar')} onRemove={() => toggleWidgetActive('solar')} />}

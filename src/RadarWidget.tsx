@@ -8,9 +8,10 @@ type RadarWidgetProps = {
   onPoisUpdate?: (pois: any[]) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onRemove?: () => void;
 };
 
-const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCollapsed, onToggleCollapse }) => {
+const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCollapsed, onToggleCollapse, onRemove }) => {
   // Fallback to New York coordinates if location is denied or still loading
   const defaultCenter: [number, number] = [40.7128, -74.0060]; 
   const center: [number, number] = location ? [location.lat, location.lon] : defaultCenter;
@@ -21,8 +22,8 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
     const fetchPOIs = async () => {
       if (!location) return;
       try {
-        // Fetch cafes, restaurants, and malls within 2000m using the free Overpass API
-        const query = `[out:json];(node(around:2000,${location.lat},${location.lon})["amenity"~"cafe|restaurant"];node(around:2000,${location.lat},${location.lon})["shop"="mall"];);out 20;`;
+        // Fetch cafes, restaurants, malls, fast food, bars, pubs, and markets within 3000m using the free Overpass API
+        const query = `[out:json];(node(around:3000,${location.lat},${location.lon})["amenity"~"cafe|restaurant|fast_food|bar|pub|food_court"];node(around:3000,${location.lat},${location.lon})["shop"~"mall|supermarket|department_store|convenience"];);out 40;`;
         const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
         const res = await axios.get(url);
         setPois(res.data.elements || []);
@@ -46,9 +47,12 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
         position: 'absolute', top: '16px', left: '16px', right: '16px', zIndex: 1000, background: 'rgba(13, 22, 37, 0.8)', padding: '8px 16px', borderRadius: '4px', border: '1px solid var(--card-border)', margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center'
       }}>
         <span>Sat-Link Radar</span>
-        <button className="collapse-btn" onClick={onToggleCollapse}>
-          {isCollapsed ? '+' : '-'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button className="collapse-btn" onClick={onToggleCollapse}>
+            {isCollapsed ? '+' : '-'}
+          </button>
+          <button className="remove-btn" onClick={onRemove}>×</button>
+        </div>
       </h3>
       
       {!isCollapsed && (
