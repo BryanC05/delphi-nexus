@@ -10,7 +10,7 @@
     },
     {
       "source": "/api/overpass/:path*",
-      "destination": "https://overpass-api.de/api/:path*"
+      "destination": "https://overpass.kumi.systems/api/:path*"
     },
     {
       "source": "/api/berita-indo/:path*",

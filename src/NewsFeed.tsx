@@ -119,15 +119,26 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
             const base = isProd ? '/api/berita-indo' : 'https://berita-indo-api-next.vercel.app/v1';
             
             const endpoints = [
-              `${base}/cnn-news`,
-              `${base}/cnbc-news`
+              { url: `${base}/cnn-news`, name: 'CNN Indonesia' },
+              { url: `${base}/cnbc-news`, name: 'CNBC Indonesia' },
+              { url: `${base}/antara-news`, name: 'Antara News' },
+              { url: `${base}/republika-news`, name: 'Republika News' }
             ];
             
-            const responses = await Promise.all(endpoints.map(url => axios.get(url).catch(() => ({ data: { data: [] } }))));
+            const responses = await Promise.all(
+              endpoints.map(ep => 
+                axios.get(ep.url)
+                  .then(res => ({ ...res, sourceName: ep.name }))
+                  .catch(err => {
+                    console.error(`IND_API_ERR [${ep.name}]:`, err.message);
+                    return { data: { data: [] }, sourceName: ep.name };
+                  })
+              )
+            );
+
             const allArticles: NewsArticle[] = [];
             
-            responses.forEach((res, idx) => {
-              const sourceName = idx === 0 ? 'CNN Indonesia' : 'CNBC Indonesia';
+            responses.forEach((res) => {
               const data = res.data?.data || [];
               data.forEach((a: any) => {
                 allArticles.push({
@@ -136,13 +147,13 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
                   url: a.link,
                   imageUrl: a.image?.small || a.image?.large,
                   publishedAt: a.isoDate,
-                  sourceName: sourceName
+                  sourceName: (res as any).sourceName
                 });
               });
             });
             return allArticles;
           } catch (e) {
-            console.error('Berita Indo API Error', e);
+            console.error('Berita Indo API Total Failure', e);
             return [];
           }
         };
