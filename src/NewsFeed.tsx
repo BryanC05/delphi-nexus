@@ -115,9 +115,12 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
 
         const fetchIndonesianNews = async () => {
           try {
+            const isProd = process.env.NODE_ENV === 'production';
+            const base = isProd ? '/api/berita-indo' : 'https://berita-indo-api-next.vercel.app/v1';
+            
             const endpoints = [
-              'https://berita-indo-api-next.vercel.app/v1/cnn-news',
-              'https://berita-indo-api-next.vercel.app/v1/cnbc-news'
+              `${base}/cnn-news`,
+              `${base}/cnbc-news`
             ];
             
             const responses = await Promise.all(endpoints.map(url => axios.get(url).catch(() => ({ data: { data: [] } }))));
@@ -147,14 +150,19 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
         const searchCountry = fallbackCountryRef.current || countryCode;
         let combined: NewsArticle[] = [];
 
+        console.log(`FETCH_INIT: country=${searchCountry}, query=${activeQuery}`);
+
         // If searching specifically for Indonesia or the country is Indonesia
         if (searchCountry === 'id' || activeQuery.toLowerCase().includes('indonesia')) {
+          console.log('FETCH_ID: Fetching from Berita Indo API...');
           const indoNews = await fetchIndonesianNews();
+          console.log(`FETCH_ID_DONE: Found ${indoNews.length} articles`);
           combined = [...indoNews];
         }
 
         // Always attempt to fetch from standard APIs to supplement or fallback
         const standardNews = await fetchArticlesForCountry(searchCountry);
+        console.log(`FETCH_STD: Found ${standardNews.length} articles for ${searchCountry}`);
         combined = [...combined, ...standardNews];
 
         // Final fallback to 'us' top headlines if absolutely nothing is found on page 1

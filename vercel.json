@@ -11,6 +11,10 @@
     {
       "source": "/api/overpass/:path*",
       "destination": "https://overpass-api.de/api/:path*"
+    },
+    {
+      "source": "/api/berita-indo/:path*",
+      "destination": "https://berita-indo-api-next.vercel.app/v1/:path*"
     }
   ]
 }
