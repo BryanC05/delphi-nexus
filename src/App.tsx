@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './App.css';
 import WeatherWidget from './WeatherWidget';
-import WorldClockWidget from './WorldClockWidget';
+import HeaderClock from './HeaderClock';
 import SystemStatusWidget from './SystemStatusWidget';
 import BootSequence from './BootSequence';
 import AITerminalWidget from './AITerminalWidget';
@@ -45,8 +45,8 @@ const App: React.FC = () => {
       if (parsed.includes('media')) {
         parsed = parsed.map((w: string) => w === 'media' ? 'anime' : w);
       }
-      // Remove radar
-      parsed = parsed.filter((w: string) => w !== 'radar');
+      // Remove radar and clock
+      parsed = parsed.filter((w: string) => w !== 'radar' && w !== 'clock');
       
       // Deduplicate to prevent double widgets if 'media' and 'anime' were both present
       parsed = Array.from(new Set(parsed));
@@ -54,7 +54,7 @@ const App: React.FC = () => {
       localStorage.setItem('activeWidgets', JSON.stringify(parsed));
       return parsed;
     }
-    return ['weather', 'clock', 'anime', 'bio', 'solar', 'launch', 'cyber', 'threats', 'intel'];
+    return ['weather', 'anime', 'bio', 'solar', 'launch', 'cyber', 'threats', 'intel'];
   });
   const [user, setUser] = useState<any>(null);
 
@@ -232,7 +232,6 @@ const App: React.FC = () => {
 
   const WIDGET_OPTIONS = [
     { id: 'weather', label: 'Weather' },
-    { id: 'clock', label: 'Global TimeSync' },
     { id: 'anime', label: 'Anime Tracker (Next Season)' },
     { id: 'bio', label: 'Bio-Hazard Monitor' },
     { id: 'solar', label: 'Solar Weather' },
@@ -301,7 +300,8 @@ const App: React.FC = () => {
           <h1>Delphi Nexus</h1>
           {isLocating && <p style={{ color: '#fff', margin: '8px 0 0 0', opacity: 0.7, fontFamily: 'var(--font-tech)' }}>LOCATING GEOGRAPHIC COORDINATES...</p>}
         </div>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <HeaderClock />
           <SystemStatusWidget />
         </div>
       </header>
@@ -321,7 +321,6 @@ const App: React.FC = () => {
                   onMouseEnter={playHoverSound}
                 >
                   {widgetId === 'weather' && <WeatherWidget location={location} isCollapsed={collapsedWidgets['weather']} onToggleCollapse={() => toggleCollapse('weather')} onRemove={() => toggleWidgetActive('weather')} />}
-                  {widgetId === 'clock' && <WorldClockWidget isCollapsed={collapsedWidgets['clock']} onToggleCollapse={() => toggleCollapse('clock')} onRemove={() => toggleWidgetActive('clock')} />}
                   {widgetId === 'anime' && <AnimeTrackerWidget isCollapsed={collapsedWidgets['anime']} onToggleCollapse={() => toggleCollapse('anime')} onRemove={() => toggleWidgetActive('anime')} />}
                   {widgetId === 'bio' && <BioHazardWidget location={location} isCollapsed={collapsedWidgets['bio']} onToggleCollapse={() => toggleCollapse('bio')} onRemove={() => toggleWidgetActive('bio')} />}
                   {widgetId === 'solar' && <SolarWeatherWidget isCollapsed={collapsedWidgets['solar']} onToggleCollapse={() => toggleCollapse('solar')} onRemove={() => toggleWidgetActive('solar')} />}
