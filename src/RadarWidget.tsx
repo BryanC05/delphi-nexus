@@ -23,7 +23,8 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
       if (!location) return;
       try {
         // Fetch cafes, restaurants, malls, fast food, bars, pubs, and markets within 3000m using the free Overpass API
-        const query = `[out:json];(node(around:3000,${location.lat},${location.lon})["amenity"~"cafe|restaurant|fast_food|bar|pub|food_court"];node(around:3000,${location.lat},${location.lon})["shop"~"mall|supermarket|department_store|convenience"];);out 40;`;
+        // Using nwr (node, way, relation) and out center because malls and large areas are often mapped as ways, not just nodes.
+        const query = `[out:json];(nwr(around:3000,${location.lat},${location.lon})["amenity"~"cafe|restaurant|fast_food|bar|pub|food_court"];nwr(around:3000,${location.lat},${location.lon})["shop"~"mall|supermarket|department_store|convenience"];);out center 40;`;
         
         const isProd = process.env.NODE_ENV === 'production';
         const baseUrl = isProd ? '/api/overpass/interpreter' : 'https://overpass-api.de/api/interpreter';
@@ -84,15 +85,25 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
             pathOptions={{ color: 'var(--accent-color)', fillColor: 'var(--accent-color)', fillOpacity: 0.8 }} 
           />
           {/* Render Nearby Locations */}
-          {pois.map(poi => (
-            <CircleMarker key={poi.id} center={[poi.lat, poi.lon]} radius={4} pathOptions={{ color: '#ff003c', fillColor: '#ff003c', fillOpacity: 0.8 }}>
+          {pois.map(poi => {
+            const lat = poi.lat || poi.center?.lat;
+            const lon = poi.lon || poi.center?.lon;
+            if (!lat || !lon) return null;
+
+            const isShop = !!poi.tags?.shop;
+            const typeLabel = poi.tags?.amenity || poi.tags?.shop;
+            const color = isShop ? 'var(--p3r-cyan)' : '#fc8181';
+
+            return (
+            <CircleMarker key={poi.id} center={[lat, lon]} radius={5} pathOptions={{ color: color, fillColor: color, fillOpacity: 0.8 }}>
               <Tooltip direction="top" offset={[0, -5]} opacity={1}>
-                <strong>{poi.tags?.name || poi.tags?.amenity || poi.tags?.shop || 'Unknown Location'}</strong>
+                <strong style={{ fontFamily: 'var(--font-p3r)', letterSpacing: '1px' }}>{poi.tags?.name || 'UNKNOWN'}</strong>
                 <br/>
-                <span style={{ textTransform: 'capitalize' }}>{poi.tags?.amenity || poi.tags?.shop}</span>
+                <span style={{ textTransform: 'uppercase', fontSize: '0.8rem', color: color }}>{typeLabel}</span>
               </Tooltip>
             </CircleMarker>
-          ))}
+            );
+          })}
           </MapContainer>
         </div>
       )}
