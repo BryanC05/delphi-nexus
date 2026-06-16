@@ -54,8 +54,8 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
       } : {
         position: 'absolute', top: '16px', left: '16px', right: '16px', zIndex: 1000, background: 'var(--p3r-blue-dark)', padding: '10px 20px', borderLeft: '4px solid var(--p3r-blue-light)', margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '4px 4px 0px rgba(0,0,0,0.5)'
       }}>
-        <span style={{ transform: isCollapsed ? 'none' : 'skewX(5deg)', fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>Sat-Link Radar</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', transform: isCollapsed ? 'none' : 'skewX(5deg)' }}>
+        <span style={{ fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>Sat-Link Radar</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button className="collapse-btn" onClick={onToggleCollapse}>
             {isCollapsed ? '+' : '-'}
           </button>

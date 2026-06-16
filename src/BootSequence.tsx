@@ -40,7 +40,6 @@ const BootSequence: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         fontSize: '4rem', 
         marginBottom: '40px', 
         textShadow: '0 0 20px rgba(0, 163, 224, 0.8)',
-        transform: 'skewX(-10deg)',
         letterSpacing: '5px'
       }}>
         LOADING...

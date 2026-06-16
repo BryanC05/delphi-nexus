@@ -226,7 +226,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
   return (
     <>
       <div className="news-header">
-        <div style={{ display: 'flex', gap: '0px', alignItems: 'center', flexWrap: 'wrap', transform: 'skewX(-10deg)', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '0px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
           <h2 
             className={`section-title tab ${activeTab === 'feed' ? 'active' : ''}`} 
             onClick={() => { playClickSound(); setActiveTab('feed'); }}
@@ -314,12 +314,11 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
                     fontSize: '0.85rem',
                     fontFamily: 'var(--font-p3r)',
                     cursor: 'pointer',
-                    transform: 'skewX(-15deg)',
                     transition: 'all 0.2s ease',
                     textTransform: 'uppercase'
                   }}
                 >
-                  <span style={{ display: 'inline-block', transform: 'skewX(15deg)' }}>{topic}</span>
+                  {topic}
                 </button>
               ))}
               {activeQuery && (

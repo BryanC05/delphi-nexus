@@ -284,11 +284,11 @@ const App: React.FC = () => {
     <>
       <div className="dashboard">
       <header className="header">
-        <div style={{ transform: 'skewX(10deg)' }}>
+        <div>
           <h1>Delphi Nexus</h1>
           {isLocating && <p style={{ color: '#fff', margin: '8px 0 0 0', opacity: 0.7, fontFamily: 'var(--font-tech)' }}>LOCATING GEOGRAPHIC COORDINATES...</p>}
         </div>
-        <div style={{ transform: 'skewX(10deg)' }}>
+        <div>
           <SystemStatusWidget />
         </div>
       </header>
