@@ -14,6 +14,9 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasKeys, setHasKeys] = useState<boolean>(true);
   
+  // Basic Cache to avoid 429s
+  const lastFetchRef = useRef<{ key: string; timestamp: number } | null>(null);
+
   // Persistent Search & Category from LocalStorage
   const [activeQuery, setActiveQuery] = useState<string>(() => localStorage.getItem('newsQuery') || '');
   const [queryInput, setQueryInput] = useState<string>(activeQuery);
@@ -54,6 +57,12 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
 
   useEffect(() => {
     const fetchNews = async () => {
+      const fetchKey = `${countryCode}-${category}-${activeQuery}-${page}`;
+      // Avoid fetching if same request was made in the last 10 seconds
+      if (lastFetchRef.current?.key === fetchKey && Date.now() - lastFetchRef.current.timestamp < 10000) {
+        return;
+      }
+
       setIsLoading(true);
       try {
         if (!process.env.REACT_APP_NEWSAPI_API_KEY && !process.env.REACT_APP_MEDIASTACK_API_KEY) {
@@ -116,7 +125,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
         const fetchIndonesianNews = async () => {
           try {
             const isProd = process.env.NODE_ENV === 'production';
-            const base = isProd ? '/api/berita-indo' : 'https://berita-indo-api-next.vercel.app/v1';
+            const base = isProd ? '/api/berita-indo' : 'https://berita-indo-api.vercel.app/v1';
             
             const endpoints = [
               { url: `${base}/cnn-news`, name: 'CNN Indonesia' },
@@ -184,10 +193,12 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
             fallbackCountryRef.current = 'us';
           }
         }
+combined.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-        combined.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+lastFetchRef.current = { key: fetchKey, timestamp: Date.now() };
 
-        if (combined.length === 0) {
+if (combined.length === 0) {
+...
           setHasMore(false);
         } else {
           setHasMore(true);
