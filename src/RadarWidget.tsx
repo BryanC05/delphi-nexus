@@ -26,10 +26,12 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
         const query = `[out:json];(node(around:3000,${location.lat},${location.lon})["amenity"~"cafe|restaurant|fast_food|bar|pub|food_court"];node(around:3000,${location.lat},${location.lon})["shop"~"mall|supermarket|department_store|convenience"];);out 40;`;
         
         const isProd = process.env.NODE_ENV === 'production';
-        const baseUrl = isProd ? '/api/overpass/interpreter' : 'https://overpass.private.coffee/api/interpreter';
+        const baseUrl = isProd ? '/api/overpass/interpreter' : 'https://overpass-api.de/api/interpreter';
         
-        const res = await axios.get(`${baseUrl}?data=${encodeURIComponent(query)}`, {
+        // Use POST for reliability
+        const res = await axios.post(baseUrl, `data=${encodeURIComponent(query)}`, {
           headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json'
           }
         });
