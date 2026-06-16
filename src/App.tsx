@@ -31,7 +31,7 @@ const App: React.FC = () => {
   // Settings & Theme State
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [soundOn, setSoundOn] = useState<boolean>(isSoundEnabled);
-  const [activeTheme, setActiveTheme] = useState<string>(() => localStorage.getItem('activeTheme') || 'Neon Cyan');
+  const [activeTheme, setActiveTheme] = useState<string>(() => localStorage.getItem('activeTheme') || 'P3 Reload');
   const [showAI, setShowAI] = useState<boolean>(false);
   const [newsContext, setNewsContext] = useState<string>('');
   const [collapsedWidgets, setCollapsedWidgets] = useState<Record<string, boolean>>(() => JSON.parse(localStorage.getItem('collapsedWidgets') || '{}'));
@@ -45,6 +45,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
 
   const THEMES = [
+    { name: 'P3 Reload', hex: '#00A3E0', rgb: '0, 163, 224' },
     { name: 'Neon Cyan', hex: '#00f0ff', rgb: '0, 240, 255' },
     { name: 'Matrix Green', hex: '#00ff41', rgb: '0, 255, 65' },
     { name: 'Alert Red', hex: '#ff003c', rgb: '255, 0, 60' },
@@ -60,6 +61,16 @@ const App: React.FC = () => {
     const theme = THEMES.find(t => t.name === activeTheme) || THEMES[0];
     document.documentElement.style.setProperty('--accent-color', theme.hex);
     document.documentElement.style.setProperty('--accent-glow', `0 0 10px rgba(${theme.rgb}, 0.3), inset 0 0 10px rgba(${theme.rgb}, 0.05)`);
+    
+    // Add P3R specific variables if theme is P3 Reload
+    if (activeTheme === 'P3 Reload') {
+      document.documentElement.style.setProperty('--bg-color', '#000c1d');
+      document.documentElement.style.setProperty('--card-bg', 'rgba(0, 45, 98, 0.7)');
+    } else {
+      document.documentElement.style.setProperty('--bg-color', '#050b14');
+      document.documentElement.style.setProperty('--card-bg', 'rgba(13, 22, 37, 0.85)');
+    }
+
     localStorage.setItem('activeTheme', activeTheme);
   }, [activeTheme]);
 
@@ -272,12 +283,14 @@ const App: React.FC = () => {
   return (
     <>
       <div className="dashboard">
-      <header className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', textAlign: 'left' }}>
-        <div>
-          <h1 style={{ textAlign: 'left' }}>Delphi Nexus</h1>
-          {isLocating && <p style={{ color: 'var(--text-muted)', margin: '8px 0 0 0' }}>Detecting your location...</p>}
+      <header className="header">
+        <div style={{ transform: 'skewX(10deg)' }}>
+          <h1>Delphi Nexus</h1>
+          {isLocating && <p style={{ color: '#fff', margin: '8px 0 0 0', opacity: 0.7, fontFamily: 'var(--font-tech)' }}>LOCATING GEOGRAPHIC COORDINATES...</p>}
         </div>
-        <SystemStatusWidget />
+        <div style={{ transform: 'skewX(10deg)' }}>
+          <SystemStatusWidget />
+        </div>
       </header>
 
       {!isLocating && (

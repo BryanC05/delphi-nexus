@@ -113,16 +113,47 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
           return [...newsApiArticles, ...mediastackArticles].filter(a => a.title && a.url);
         };
 
-        const searchCountry = fallbackCountryRef.current || countryCode;
-        let combined = await fetchArticlesForCountry(searchCountry);
-
-        // Fallback to US news if local country returns no news
-        if (combined.length === 0 && searchCountry !== 'us' && page === 1) {
-          combined = await fetchArticlesForCountry('us');
-          if (combined.length > 0) {
-            fallbackCountryRef.current = 'us';
+        const fetchIndonesianNews = async () => {
+          try {
+            const endpoints = [
+              'https://berita-indo-api-next.vercel.app/v1/cnn-news',
+              'https://berita-indo-api-next.vercel.app/v1/cnbc-news'
+            ];
+            
+            const responses = await Promise.all(endpoints.map(url => axios.get(url).catch(() => ({ data: { data: [] } }))));
+            const allArticles: NewsArticle[] = [];
+            
+            responses.forEach((res, idx) => {
+              const sourceName = idx === 0 ? 'CNN Indonesia' : 'CNBC Indonesia';
+              const data = res.data?.data || [];
+              data.forEach((a: any) => {
+                allArticles.push({
+                  title: a.title,
+                  description: a.contentSnippet || a.content,
+                  url: a.link,
+                  imageUrl: a.image?.small || a.image?.large,
+                  publishedAt: a.isoDate,
+                  sourceName: sourceName
+                });
+              });
+            });
+            return allArticles;
+          } catch (e) {
+            console.error('Berita Indo API Error', e);
+            return [];
           }
+        };
+
+        const searchCountry = fallbackCountryRef.current || countryCode;
+        let combined: NewsArticle[] = [];
+
+        if (searchCountry === 'id' || activeQuery.toLowerCase().includes('indonesia')) {
+          const indoNews = await fetchIndonesianNews();
+          combined = [...indoNews];
         }
+
+        const standardNews = await fetchArticlesForCountry(searchCountry);
+        combined = [...combined, ...standardNews];
 
         combined.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
@@ -195,18 +226,35 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
   return (
     <>
       <div className="news-header">
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0px', alignItems: 'center', flexWrap: 'wrap', transform: 'skewX(-10deg)', marginBottom: '20px' }}>
           <h2 
             className={`section-title tab ${activeTab === 'feed' ? 'active' : ''}`} 
             onClick={() => { playClickSound(); setActiveTab('feed'); }}
             onMouseEnter={playHoverSound}
+            style={{ 
+              background: activeTab === 'feed' ? 'var(--p3r-blue-light)' : 'transparent',
+              color: activeTab === 'feed' ? '#000' : '#fff',
+              padding: '10px 30px',
+              margin: 0,
+              fontFamily: 'var(--font-p3r)',
+              border: activeTab === 'feed' ? 'none' : '1px solid var(--p3r-blue-light)',
+              textDecoration: 'none'
+            }}
           >Feed</h2>
           <h2 
             className={`section-title tab ${activeTab === 'saved' ? 'active' : ''}`} 
             onClick={() => { playClickSound(); setActiveTab('saved'); }}
             onMouseEnter={playHoverSound}
+            style={{ 
+              background: activeTab === 'saved' ? 'var(--p3r-blue-light)' : 'transparent',
+              color: activeTab === 'saved' ? '#000' : '#fff',
+              padding: '10px 30px',
+              margin: 0,
+              fontFamily: 'var(--font-p3r)',
+              border: activeTab === 'saved' ? 'none' : '1px solid var(--p3r-blue-light)',
+              textDecoration: 'none'
+            }}
           >Saved ({bookmarks.length})</h2>
-          {!isLoading && hasKeys && <span className="api-indicator">API ONLINE</span>}
         </div>
         
         {activeTab === 'feed' && (
@@ -224,39 +272,51 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
                   onMouseEnter={playHoverSound}
               >
                 {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                  <option key={cat} value={cat} style={{ background: '#002D62', color: '#fff' }}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
                 ))}
               </select>
               <div className="news-search-wrapper">
-                  <input type="text" className="news-search-input" placeholder="Search keywords..." value={queryInput} onChange={(e) => setQueryInput(e.target.value)} onMouseEnter={playHoverSound}/>
+                  <input type="text" className="news-search-input" placeholder="Search keywords..." value={queryInput} onChange={(e) => setQueryInput(e.target.value)} onMouseEnter={playHoverSound} style={{ borderRadius: 0, borderLeft: '4px solid var(--p3r-blue-light)' }}/>
                   <button type="submit" className="news-search-button" onMouseEnter={playHoverSound}>Search</button>
               </div>
             </form>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: 'var(--font-tech)' }}>QUICK_LINKS:</span>
-              {['Cybercrime', 'Cybersecurity', 'Artificial Intelligence', 'Space Exploration'].map(topic => (
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>Links:</span>
+              {['Indonesia', 'Cybercrime', 'Cybersecurity', 'Artificial Intelligence', 'Space Exploration'].map(topic => (
                 <button
                   key={topic}
                   type="button"
                   onClick={() => {
                     playClickSound();
-                    setQueryInput(topic);
-                    setActiveQuery(topic);
+                    if (topic === 'Indonesia') {
+                      setQueryInput('');
+                      setActiveQuery('');
+                      // We can't easily change the countryCode prop from here, 
+                      // but we can search for Indonesia as a keyword or update the search to target 'id'.
+                      // For now, let's make it search for 'Indonesia' as a keyword which is very effective.
+                      setQueryInput('Indonesia');
+                      setActiveQuery('Indonesia');
+                    } else {
+                      setQueryInput(topic);
+                      setActiveQuery(topic);
+                    }
                     setPage(1);
                     fallbackCountryRef.current = null;
                   }}
                   onMouseEnter={playHoverSound}
                   style={{
-                    background: activeQuery === topic ? 'rgba(0, 240, 255, 0.15)' : 'transparent',
-                    border: `1px solid ${activeQuery === topic ? 'var(--accent-color)' : 'var(--card-border)'}`,
-                    color: activeQuery === topic ? 'var(--accent-color)' : 'var(--text-muted)',
-                    padding: '4px 10px',
-                    borderRadius: '4px',
-                    fontSize: '0.75rem',
-                    fontFamily: 'var(--font-tech)',
+                    background: activeQuery === topic ? 'var(--p3r-blue-light)' : 'var(--p3r-blue-dark)',
+                    border: 'none',
+                    borderLeft: `4px solid ${activeQuery === topic ? '#fff' : 'var(--p3r-blue-light)'}`,
+                    color: '#fff',
+                    padding: '6px 15px',
+                    borderRadius: '0',
+                    fontSize: '0.85rem',
+                    fontFamily: 'var(--font-p3r)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    textTransform: 'uppercase'
+                    textTransform: 'uppercase',
+                    clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0% 100%)'
                   }}
                 >
                   {topic}

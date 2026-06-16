@@ -44,17 +44,17 @@ const SystemStatusWidget: React.FC = () => {
   const currentPing = pingData.length > 0 ? pingData[pingData.length - 1].ping : 0;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(13, 22, 37, 0.85)', padding: '8px 16px', borderRadius: 'var(--radius)', border: '1px solid var(--card-border)', boxShadow: 'var(--shadow-sm)' }}>
-      <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', fontSize: '0.85rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Uplink</span>
-      <div style={{ width: '60px', height: '24px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--p3r-blue-dark)', padding: '10px 20px', borderRadius: '0', borderLeft: '4px solid var(--p3r-blue-light)', boxShadow: '4px 4px 0px rgba(0,0,0,0.5)', transform: 'skewX(-10deg)' }}>
+      <span style={{ color: '#fff', fontFamily: 'var(--font-p3r)', fontSize: '0.9rem', letterSpacing: '1px', textTransform: 'uppercase', transform: 'skewX(10deg)' }}>LINK_STABILITY</span>
+      <div style={{ width: '80px', height: '28px', transform: 'skewX(10deg)' }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={pingData}>
             <YAxis domain={[0, 100]} hide />
-            <Area type="step" dataKey="ping" stroke="var(--accent-color)" fill="rgba(0, 240, 255, 0.2)" isAnimationActive={false} />
+            <Area type="monotone" dataKey="ping" stroke="#fff" fill="var(--p3r-blue-light)" fillOpacity={0.4} isAnimationActive={false} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <span style={{ color: currentPing > 40 ? '#fc8181' : '#48bb78', fontFamily: 'var(--font-tech)', fontWeight: 'bold', fontSize: '1rem', minWidth: '45px', textAlign: 'right' }}>{currentPing}ms</span>
+      <span style={{ color: currentPing > 60 ? '#fc8181' : '#fff', fontFamily: 'var(--font-p3r)', fontWeight: 'bold', fontSize: '1.2rem', minWidth: '55px', textAlign: 'right', transform: 'skewX(10deg)' }}>{currentPing}ms</span>
     </div>
   );
 };

@@ -13,6 +13,8 @@ type WeatherWidgetProps = {
 const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, isCollapsed, onToggleCollapse, onRemove }) => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeLocation, setActiveLocation] = useState<string | null>(null);
   
   const refreshInterval = parseInt(localStorage.getItem('weatherRefreshInterval') || '60', 10);
 
@@ -26,7 +28,9 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, isCollapsed, on
           units: 'metric',
         };
 
-        if (location) {
+        if (activeLocation) {
+          params.q = activeLocation;
+        } else if (location) {
           params.lat = location.lat;
           params.lon = location.lon;
         } else {
@@ -52,16 +56,31 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, isCollapsed, on
       const intervalId = setInterval(fetchWeather, refreshInterval * 60 * 1000);
       return () => clearInterval(intervalId);
     }
-  }, [location, refreshInterval]);
+  }, [location, activeLocation, refreshInterval]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      playClickSound();
+      setActiveLocation(searchQuery.trim());
+      setSearchQuery('');
+    }
+  };
+
+  const resetLocation = () => {
+    playClickSound();
+    setActiveLocation(null);
+    setSearchQuery('');
+  };
 
   if (!weather) return null;
 
   return (
     <div className="widget weather-widget">
-      <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--card-border)' }}>
+      <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '2px solid var(--accent-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span>Weather ({weather.name})</span>
-          <span className="api-indicator">API ONLINE</span>
+          <span style={{ fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>WEATHER ({weather.name})</span>
+          <span className="api-indicator" style={{ background: 'var(--p3r-blue-light)', color: '#000', border: 'none' }}>ONLINE</span>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button className="collapse-btn" onClick={onToggleCollapse} onMouseEnter={playHoverSound}>{isCollapsed ? '+' : '-'}</button>
@@ -71,8 +90,62 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, isCollapsed, on
 
       {!isCollapsed && (
           <>
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', marginBottom: '20px', transform: 'skewX(-10deg)' }}>
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="ENTER LOCATION..."
+                style={{
+                  flexGrow: 1,
+                  background: 'rgba(0,0,0,0.3)',
+                  border: 'none',
+                  borderLeft: '4px solid var(--p3r-blue-light)',
+                  color: '#fff',
+                  padding: '8px 12px',
+                  fontFamily: 'var(--font-tech)',
+                  outline: 'none',
+                  fontSize: '0.9rem'
+                }}
+              />
+              <button 
+                type="submit"
+                onMouseEnter={playHoverSound}
+                style={{
+                  background: 'var(--p3r-blue-dark)',
+                  color: '#fff',
+                  border: 'none',
+                  borderLeft: '4px solid var(--p3r-blue-light)',
+                  padding: '8px 15px',
+                  fontFamily: 'var(--font-p3r)',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem'
+                }}
+              >
+                SEARCH
+              </button>
+              {activeLocation && (
+                <button 
+                  type="button"
+                  onClick={resetLocation}
+                  onMouseEnter={playHoverSound}
+                  style={{
+                    background: 'transparent',
+                    color: '#fc8181',
+                    border: '1px solid #fc8181',
+                    padding: '8px 12px',
+                    fontFamily: 'var(--font-p3r)',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  RESET
+                </button>
+              )}
+            </form>
+
             <div className="widget-content">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0, 240, 255, 0.05)', padding: '16px', borderRadius: '8px', border: '1px solid var(--card-border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--p3r-blue-dark)', padding: '20px', borderLeft: '8px solid var(--p3r-blue-light)', boxShadow: '4px 4px 0px rgba(0,0,0,0.3)', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {weather.weather[0]?.icon && (
                     <img 
