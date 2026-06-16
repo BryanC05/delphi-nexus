@@ -6,7 +6,7 @@ import SystemStatusWidget from './SystemStatusWidget';
 import BootSequence from './BootSequence';
 import AITerminalWidget from './AITerminalWidget';
 import ThreatMonitorWidget from './ThreatMonitorWidget';
-import MediaRadarWidget from './MediaRadarWidget';
+import AnimeTrackerWidget from './AnimeTrackerWidget';
 import IntelWidget from './IntelWidget';
 import BioHazardWidget from './BioHazardWidget';
 import SolarWeatherWidget from './SolarWeatherWidget';
@@ -40,7 +40,7 @@ const App: React.FC = () => {
   const [newsSearchTrigger, setNewsSearchTrigger] = useState<{ query: string; ts: number } | null>(null);
   const [activeWidgets, setActiveWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem('activeWidgets');
-    return saved ? JSON.parse(saved) : ['weather', 'radar', 'clock', 'bio', 'solar', 'launch', 'cyber', 'threats', 'media', 'intel'];
+    return saved ? JSON.parse(saved) : ['weather', 'radar', 'clock', 'bio', 'solar', 'launch', 'cyber', 'threats', 'anime', 'intel'];
   });
   const [user, setUser] = useState<any>(null);
 
@@ -225,7 +225,7 @@ const App: React.FC = () => {
     { id: 'launch', label: 'Orbital Launch Tracker' },
     { id: 'cyber', label: 'Cyber Pulse' },
     { id: 'threats', label: 'Zero-Day Monitor' },
-    { id: 'media', label: 'Media Radar' },
+    { id: 'anime', label: 'Anime Tracker (Next Season)' },
     { id: 'intel', label: 'Daily Intel' }
   ];
 
@@ -315,7 +315,7 @@ const App: React.FC = () => {
                   {widgetId === 'launch' && <LaunchTrackerWidget isCollapsed={collapsedWidgets['launch']} onToggleCollapse={() => toggleCollapse('launch')} onRemove={() => toggleWidgetActive('launch')} />}
                   {widgetId === 'cyber' && <CyberPulseWidget isCollapsed={collapsedWidgets['cyber']} onToggleCollapse={() => toggleCollapse('cyber')} onRemove={() => toggleWidgetActive('cyber')} />}
                   {widgetId === 'threats' && <ThreatMonitorWidget isCollapsed={collapsedWidgets['threats']} onToggleCollapse={() => toggleCollapse('threats')} onRemove={() => toggleWidgetActive('threats')} />}
-                  {widgetId === 'media' && <MediaRadarWidget isCollapsed={collapsedWidgets['media']} onToggleCollapse={() => toggleCollapse('media')} onRemove={() => toggleWidgetActive('media')} />}
+                  {widgetId === 'anime' && <AnimeTrackerWidget isCollapsed={collapsedWidgets['anime']} onToggleCollapse={() => toggleCollapse('anime')} onRemove={() => toggleWidgetActive('anime')} />}
                   {widgetId === 'intel' && <IntelWidget isCollapsed={collapsedWidgets['intel']} onToggleCollapse={() => toggleCollapse('intel')} onRemove={() => toggleWidgetActive('intel')} />}
                 </div>
               ))}
