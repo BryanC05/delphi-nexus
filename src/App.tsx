@@ -12,7 +12,6 @@ import BioHazardWidget from './BioHazardWidget';
 import SolarWeatherWidget from './SolarWeatherWidget';
 import LaunchTrackerWidget from './LaunchTrackerWidget';
 import CyberPulseWidget from './CyberPulseWidget';
-import RadarWidget from './RadarWidget';
 import NewsFeed from './NewsFeed';
 import { playHoverSound, playClickSound, toggleSound, isSoundEnabled } from './soundUtils';
 import { auth, db, googleProvider } from './firebase';
@@ -45,11 +44,17 @@ const App: React.FC = () => {
       // Migrate old 'media' widget to new 'anime' widget for existing users
       if (parsed.includes('media')) {
         parsed = parsed.map((w: string) => w === 'media' ? 'anime' : w);
-        localStorage.setItem('activeWidgets', JSON.stringify(parsed));
       }
+      // Remove radar
+      parsed = parsed.filter((w: string) => w !== 'radar');
+      
+      // Ensure anime is right after clock if not already there, to fulfill layout request
+      // But we are mainly relying on CSS grid to position it.
+      
+      localStorage.setItem('activeWidgets', JSON.stringify(parsed));
       return parsed;
     }
-    return ['weather', 'radar', 'clock', 'bio', 'solar', 'launch', 'cyber', 'threats', 'anime', 'intel'];
+    return ['weather', 'clock', 'anime', 'bio', 'solar', 'launch', 'cyber', 'threats', 'intel'];
   });
   const [user, setUser] = useState<any>(null);
 
@@ -227,14 +232,13 @@ const App: React.FC = () => {
 
   const WIDGET_OPTIONS = [
     { id: 'weather', label: 'Weather' },
-    { id: 'radar', label: 'Sat-Link Radar' },
     { id: 'clock', label: 'Global TimeSync' },
+    { id: 'anime', label: 'Anime Tracker (Next Season)' },
     { id: 'bio', label: 'Bio-Hazard Monitor' },
     { id: 'solar', label: 'Solar Weather' },
     { id: 'launch', label: 'Orbital Launch Tracker' },
     { id: 'cyber', label: 'Cyber Pulse' },
     { id: 'threats', label: 'Zero-Day Monitor' },
-    { id: 'anime', label: 'Anime Tracker (Next Season)' },
     { id: 'intel', label: 'Daily Intel' }
   ];
 
@@ -313,18 +317,17 @@ const App: React.FC = () => {
                   onDragStart={(e) => handleDragStart(e, index)}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => handleDrop(e, index)}
-                  className="draggable-wrapper"
+                  className={`draggable-wrapper ${widgetId === 'anime' ? 'full-width' : ''}`}
                   onMouseEnter={playHoverSound}
                 >
                   {widgetId === 'weather' && <WeatherWidget location={location} isCollapsed={collapsedWidgets['weather']} onToggleCollapse={() => toggleCollapse('weather')} onRemove={() => toggleWidgetActive('weather')} />}
-                  {widgetId === 'radar' && <RadarWidget location={location} isCollapsed={collapsedWidgets['radar']} onToggleCollapse={() => toggleCollapse('radar')} onRemove={() => toggleWidgetActive('radar')} />}
                   {widgetId === 'clock' && <WorldClockWidget isCollapsed={collapsedWidgets['clock']} onToggleCollapse={() => toggleCollapse('clock')} onRemove={() => toggleWidgetActive('clock')} />}
+                  {widgetId === 'anime' && <AnimeTrackerWidget isCollapsed={collapsedWidgets['anime']} onToggleCollapse={() => toggleCollapse('anime')} onRemove={() => toggleWidgetActive('anime')} />}
                   {widgetId === 'bio' && <BioHazardWidget location={location} isCollapsed={collapsedWidgets['bio']} onToggleCollapse={() => toggleCollapse('bio')} onRemove={() => toggleWidgetActive('bio')} />}
                   {widgetId === 'solar' && <SolarWeatherWidget isCollapsed={collapsedWidgets['solar']} onToggleCollapse={() => toggleCollapse('solar')} onRemove={() => toggleWidgetActive('solar')} />}
                   {widgetId === 'launch' && <LaunchTrackerWidget isCollapsed={collapsedWidgets['launch']} onToggleCollapse={() => toggleCollapse('launch')} onRemove={() => toggleWidgetActive('launch')} />}
                   {widgetId === 'cyber' && <CyberPulseWidget isCollapsed={collapsedWidgets['cyber']} onToggleCollapse={() => toggleCollapse('cyber')} onRemove={() => toggleWidgetActive('cyber')} />}
                   {widgetId === 'threats' && <ThreatMonitorWidget isCollapsed={collapsedWidgets['threats']} onToggleCollapse={() => toggleCollapse('threats')} onRemove={() => toggleWidgetActive('threats')} />}
-                  {widgetId === 'anime' && <AnimeTrackerWidget isCollapsed={collapsedWidgets['anime']} onToggleCollapse={() => toggleCollapse('anime')} onRemove={() => toggleWidgetActive('anime')} />}
                   {widgetId === 'intel' && <IntelWidget isCollapsed={collapsedWidgets['intel']} onToggleCollapse={() => toggleCollapse('intel')} onRemove={() => toggleWidgetActive('intel')} />}
                 </div>
               ))}

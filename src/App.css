@@ -94,6 +94,10 @@ body {
   .widgets-grid {
     grid-template-columns: 1fr 1fr;
   }
+
+  .draggable-wrapper.full-width {
+    grid-column: 1 / -1;
+  }
 }
 
 .widget {
