@@ -62,7 +62,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
 
   useEffect(() => {
     const fetchNews = async () => {
-      const fetchKey = `${countryCode}-${category}-${activeQuery}-${page}`;
+      const fetchKey = `${countryCode}-${category}-${activeQuery}-${page}-${newsMode}`;
       // Avoid fetching if same request was made in the last 10 seconds
       if (lastFetchRef.current?.key === fetchKey && Date.now() - lastFetchRef.current.timestamp < 10000) {
         return;
@@ -227,7 +227,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
     };
 
     fetchNews();
-  }, [countryCode, category, activeQuery, page]);
+  }, [countryCode, category, activeQuery, page, newsMode]);
 
   // Infinite Scroll Observer
   useEffect(() => {
