@@ -25,6 +25,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
   // Bookmarks State
   const [bookmarks, setBookmarks] = useState<NewsArticle[]>(() => JSON.parse(localStorage.getItem('bookmarks') || '[]'));
   const [activeTab, setActiveTab] = useState<'feed' | 'saved'>('feed');
+  const [newsMode, setNewsMode] = useState<'global' | 'indonesia'>(() => (localStorage.getItem('newsMode') as any) || 'global');
 
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -41,7 +42,11 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
 
   // Save preferences to localStorage
   useEffect(() => { localStorage.setItem('newsCategory', category); }, [category]);
-  useEffect(() => { localStorage.setItem('newsQuery', activeQuery); localStorage.setItem('bookmarks', JSON.stringify(bookmarks)); }, [activeQuery, bookmarks]);
+  useEffect(() => { 
+    localStorage.setItem('newsQuery', activeQuery); 
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    localStorage.setItem('newsMode', newsMode);
+  }, [activeQuery, bookmarks, newsMode]);
 
   useEffect(() => {
     if (searchTrigger) {
@@ -170,20 +175,21 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
         const searchCountry = fallbackCountryRef.current || countryCode;
         let combined: NewsArticle[] = [];
 
-        console.log(`FETCH_INIT: country=${searchCountry}, query=${activeQuery}`);
+        console.log(`FETCH_INIT: country=${searchCountry}, query=${activeQuery}, mode=${newsMode}`);
 
-        // If searching specifically for Indonesia or the country is Indonesia
-        if (searchCountry === 'id' || activeQuery.toLowerCase().includes('indonesia')) {
+        // If in Indonesia mode, only fetch Indo news. If global, fetch both or based on search.
+        if (newsMode === 'indonesia' || (newsMode === 'global' && (searchCountry === 'id' || activeQuery.toLowerCase().includes('indonesia')))) {
           console.log('FETCH_ID: Fetching from Berita Indo API...');
           const indoNews = await fetchIndonesianNews();
           console.log(`FETCH_ID_DONE: Found ${indoNews.length} articles`);
           combined = [...indoNews];
         }
 
-        // Always attempt to fetch from standard APIs to supplement or fallback
-        const standardNews = await fetchArticlesForCountry(searchCountry);
-        console.log(`FETCH_STD: Found ${standardNews.length} articles for ${searchCountry}`);
-        combined = [...combined, ...standardNews];
+        if (newsMode === 'global') {
+          const standardNews = await fetchArticlesForCountry(searchCountry);
+          console.log(`FETCH_STD: Found ${standardNews.length} articles for ${searchCountry}`);
+          combined = [...combined, ...standardNews];
+        }
 
         // Final fallback to 'us' top headlines if absolutely nothing is found on page 1
         if (combined.length === 0 && searchCountry !== 'us' && page === 1 && !activeQuery) {
@@ -267,35 +273,66 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
   return (
     <>
       <div className="news-header">
-        <div style={{ display: 'flex', gap: '0px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
-          <h2 
-            className={`section-title tab ${activeTab === 'feed' ? 'active' : ''}`} 
-            onClick={() => { playClickSound(); setActiveTab('feed'); }}
-            onMouseEnter={playHoverSound}
-            style={{ 
-              background: activeTab === 'feed' ? 'var(--p3r-blue-light)' : 'transparent',
-              color: activeTab === 'feed' ? '#000' : '#fff',
-              padding: '10px 30px',
-              margin: 0,
-              fontFamily: 'var(--font-p3r)',
-              border: activeTab === 'feed' ? 'none' : '1px solid var(--p3r-blue-light)',
-              textDecoration: 'none'
-            }}
-          >Feed</h2>
-          <h2 
-            className={`section-title tab ${activeTab === 'saved' ? 'active' : ''}`} 
-            onClick={() => { playClickSound(); setActiveTab('saved'); }}
-            onMouseEnter={playHoverSound}
-            style={{ 
-              background: activeTab === 'saved' ? 'var(--p3r-blue-light)' : 'transparent',
-              color: activeTab === 'saved' ? '#000' : '#fff',
-              padding: '10px 30px',
-              margin: 0,
-              fontFamily: 'var(--font-p3r)',
-              border: activeTab === 'saved' ? 'none' : '1px solid var(--p3r-blue-light)',
-              textDecoration: 'none'
-            }}
-          >Saved ({bookmarks.length})</h2>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
+            <h2 
+              className={`section-title tab ${activeTab === 'feed' ? 'active' : ''}`} 
+              onClick={() => { playClickSound(); setActiveTab('feed'); }}
+              onMouseEnter={playHoverSound}
+              style={{ 
+                background: activeTab === 'feed' ? 'var(--p3r-blue-light)' : 'transparent',
+                color: activeTab === 'feed' ? '#000' : '#fff',
+                padding: '10px 30px',
+                margin: 0,
+                fontFamily: 'var(--font-p3r)',
+                border: activeTab === 'feed' ? 'none' : '1px solid var(--p3r-blue-light)',
+                textDecoration: 'none'
+              }}
+            >Feed</h2>
+            <h2 
+              className={`section-title tab ${activeTab === 'saved' ? 'active' : ''}`} 
+              onClick={() => { playClickSound(); setActiveTab('saved'); }}
+              onMouseEnter={playHoverSound}
+              style={{ 
+                background: activeTab === 'saved' ? 'var(--p3r-blue-light)' : 'transparent',
+                color: activeTab === 'saved' ? '#000' : '#fff',
+                padding: '10px 30px',
+                margin: 0,
+                fontFamily: 'var(--font-p3r)',
+                border: activeTab === 'saved' ? 'none' : '1px solid var(--p3r-blue-light)',
+                textDecoration: 'none'
+              }}
+            >Saved ({bookmarks.length})</h2>
+          </div>
+
+          <div style={{ display: 'flex', background: 'var(--p3r-blue-dark)', padding: '4px', borderLeft: '4px solid var(--p3r-blue-light)' }}>
+            <button 
+              onClick={() => { playClickSound(); setNewsMode('global'); setPage(1); setQueryInput(''); setActiveQuery(''); }}
+              onMouseEnter={playHoverSound}
+              style={{
+                background: newsMode === 'global' ? 'var(--p3r-blue-light)' : 'transparent',
+                color: newsMode === 'global' ? '#000' : '#fff',
+                border: 'none',
+                padding: '8px 20px',
+                fontFamily: 'var(--font-p3r)',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >GLOBAL</button>
+            <button 
+              onClick={() => { playClickSound(); setNewsMode('indonesia'); setPage(1); setQueryInput(''); setActiveQuery(''); }}
+              onMouseEnter={playHoverSound}
+              style={{
+                background: newsMode === 'indonesia' ? 'var(--p3r-blue-light)' : 'transparent',
+                color: newsMode === 'indonesia' ? '#000' : '#fff',
+                border: 'none',
+                padding: '8px 20px',
+                fontFamily: 'var(--font-p3r)',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >INDONESIA</button>
+          </div>
         </div>
         
         {activeTab === 'feed' && (
@@ -323,24 +360,14 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
             </form>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>Links:</span>
-              {['Indonesia', 'Cybercrime', 'Cybersecurity', 'Artificial Intelligence', 'Space Exploration'].map(topic => (
+              {(newsMode === 'global' ? ['Cybercrime', 'Cybersecurity', 'Artificial Intelligence', 'Space Exploration'] : ['Politik', 'Ekonomi', 'Olahraga', 'Teknologi']).map(topic => (
                 <button
                   key={topic}
                   type="button"
                   onClick={() => {
                     playClickSound();
-                    if (topic === 'Indonesia') {
-                      setQueryInput('');
-                      setActiveQuery('');
-                      // We can't easily change the countryCode prop from here, 
-                      // but we can search for Indonesia as a keyword or update the search to target 'id'.
-                      // For now, let's make it search for 'Indonesia' as a keyword which is very effective.
-                      setQueryInput('Indonesia');
-                      setActiveQuery('Indonesia');
-                    } else {
-                      setQueryInput(topic);
-                      setActiveQuery(topic);
-                    }
+                    setQueryInput(topic);
+                    setActiveQuery(topic);
                     setPage(1);
                     fallbackCountryRef.current = null;
                   }}
