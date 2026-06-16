@@ -130,8 +130,8 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
             const endpoints = [
               { url: `${base}/cnn-news`, name: 'CNN Indonesia' },
               { url: `${base}/cnbc-news`, name: 'CNBC Indonesia' },
-              { url: `${base}/antara-news`, name: 'Antara News' },
-              { url: `${base}/republika-news`, name: 'Republika News' }
+              { url: `${base}/republika-news`, name: 'Republika News' },
+              { url: `${base}/tempo-news`, name: 'Tempo News' }
             ];
             
             const responses = await Promise.all(
