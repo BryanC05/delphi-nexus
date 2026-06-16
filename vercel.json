@@ -7,6 +7,10 @@
     {
       "source": "/api/mediastack/:path*",
       "destination": "http://api.mediastack.com/v1/:path*"
+    },
+    {
+      "source": "/api/overpass/:path*",
+      "destination": "https://overpass-api.de/api/:path*"
     }
   ]
 }

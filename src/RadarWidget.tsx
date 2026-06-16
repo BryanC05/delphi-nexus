@@ -24,8 +24,13 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
       try {
         // Fetch cafes, restaurants, malls, fast food, bars, pubs, and markets within 3000m using the free Overpass API
         const query = `[out:json];(node(around:3000,${location.lat},${location.lon})["amenity"~"cafe|restaurant|fast_food|bar|pub|food_court"];node(around:3000,${location.lat},${location.lon})["shop"~"mall|supermarket|department_store|convenience"];);out 40;`;
-        const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
-        const res = await axios.get(url);
+        
+        const isProd = process.env.NODE_ENV === 'production';
+        const baseUrl = isProd ? '/api/overpass/interpreter' : 'https://overpass-api.de/api/interpreter';
+        
+        const res = await axios.get(baseUrl, {
+          params: { data: query }
+        });
         setPois(res.data.elements || []);
       } catch (error) {
         console.error('Error fetching POIs:', error);
