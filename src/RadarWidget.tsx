@@ -29,7 +29,10 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
         const baseUrl = isProd ? '/api/overpass/interpreter' : 'https://overpass-api.de/api/interpreter';
         
         const res = await axios.get(baseUrl, {
-          params: { data: query }
+          params: { data: query },
+          headers: {
+            'Accept': 'application/json'
+          }
         });
         setPois(res.data.elements || []);
       } catch (error) {
