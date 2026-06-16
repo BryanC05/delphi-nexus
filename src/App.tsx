@@ -40,7 +40,16 @@ const App: React.FC = () => {
   const [newsSearchTrigger, setNewsSearchTrigger] = useState<{ query: string; ts: number } | null>(null);
   const [activeWidgets, setActiveWidgets] = useState<string[]>(() => {
     const saved = localStorage.getItem('activeWidgets');
-    return saved ? JSON.parse(saved) : ['weather', 'radar', 'clock', 'bio', 'solar', 'launch', 'cyber', 'threats', 'anime', 'intel'];
+    if (saved) {
+      let parsed = JSON.parse(saved);
+      // Migrate old 'media' widget to new 'anime' widget for existing users
+      if (parsed.includes('media')) {
+        parsed = parsed.map((w: string) => w === 'media' ? 'anime' : w);
+        localStorage.setItem('activeWidgets', JSON.stringify(parsed));
+      }
+      return parsed;
+    }
+    return ['weather', 'radar', 'clock', 'bio', 'solar', 'launch', 'cyber', 'threats', 'anime', 'intel'];
   });
   const [user, setUser] = useState<any>(null);
 
