@@ -49,7 +49,7 @@ const AnimeTrackerWidget: React.FC<AnimeTrackerWidgetProps> = ({ isCollapsed, on
       // AniList GraphQL Query
       const query = `
         query ($season: MediaSeason, $year: Int) {
-          Page(page: 1, perPage: 12) {
+          Page(page: 1, perPage: 18) {
             media(season: $season, seasonYear: $year, type: ANIME, sort: POPULARITY_DESC) {
               id
               title {

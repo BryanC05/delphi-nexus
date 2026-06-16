@@ -48,8 +48,8 @@ const App: React.FC = () => {
       // Remove radar
       parsed = parsed.filter((w: string) => w !== 'radar');
       
-      // Ensure anime is right after clock if not already there, to fulfill layout request
-      // But we are mainly relying on CSS grid to position it.
+      // Deduplicate to prevent double widgets if 'media' and 'anime' were both present
+      parsed = Array.from(new Set(parsed));
       
       localStorage.setItem('activeWidgets', JSON.stringify(parsed));
       return parsed;
