@@ -193,12 +193,12 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
             fallbackCountryRef.current = 'us';
           }
         }
-combined.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-lastFetchRef.current = { key: fetchKey, timestamp: Date.now() };
+        combined.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
-if (combined.length === 0) {
-...
+        lastFetchRef.current = { key: fetchKey, timestamp: Date.now() };
+
+        if (combined.length === 0) {
           setHasMore(false);
         } else {
           setHasMore(true);
