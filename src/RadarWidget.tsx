@@ -49,10 +49,10 @@ const RadarWidget: React.FC<RadarWidgetProps> = ({ location, onPoisUpdate, isCol
       <h3 style={isCollapsed ? {
         margin: 0, borderBottom: 'none', paddingBottom: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center'
       } : {
-        position: 'absolute', top: '16px', left: '16px', right: '16px', zIndex: 1000, background: 'rgba(13, 22, 37, 0.8)', padding: '8px 16px', borderRadius: '4px', border: '1px solid var(--card-border)', margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+        position: 'absolute', top: '16px', left: '16px', right: '16px', zIndex: 1000, background: 'var(--p3r-blue-dark)', padding: '10px 20px', borderLeft: '4px solid var(--p3r-blue-light)', margin: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '4px 4px 0px rgba(0,0,0,0.5)'
       }}>
-        <span>Sat-Link Radar</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ transform: isCollapsed ? 'none' : 'skewX(5deg)', fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>Sat-Link Radar</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', transform: isCollapsed ? 'none' : 'skewX(5deg)' }}>
           <button className="collapse-btn" onClick={onToggleCollapse}>
             {isCollapsed ? '+' : '-'}
           </button>

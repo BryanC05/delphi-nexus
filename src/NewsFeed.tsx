@@ -314,12 +314,12 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
                     fontSize: '0.85rem',
                     fontFamily: 'var(--font-p3r)',
                     cursor: 'pointer',
+                    transform: 'skewX(-15deg)',
                     transition: 'all 0.2s ease',
-                    textTransform: 'uppercase',
-                    clipPath: 'polygon(0 0, 100% 0, 90% 100%, 0% 100%)'
+                    textTransform: 'uppercase'
                   }}
                 >
-                  {topic}
+                  <span style={{ display: 'inline-block', transform: 'skewX(15deg)' }}>{topic}</span>
                 </button>
               ))}
               {activeQuery && (

@@ -105,7 +105,8 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, isCollapsed, on
                   padding: '8px 12px',
                   fontFamily: 'var(--font-tech)',
                   outline: 'none',
-                  fontSize: '0.9rem'
+                  fontSize: '0.9rem',
+                  transform: 'skewX(10deg)'
                 }}
               />
               <button 
@@ -119,7 +120,8 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, isCollapsed, on
                   padding: '8px 15px',
                   fontFamily: 'var(--font-p3r)',
                   cursor: 'pointer',
-                  fontSize: '0.85rem'
+                  fontSize: '0.85rem',
+                  transform: 'skewX(10deg)'
                 }}
               >
                 SEARCH
@@ -136,7 +138,8 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, isCollapsed, on
                     padding: '8px 12px',
                     fontFamily: 'var(--font-p3r)',
                     cursor: 'pointer',
-                    fontSize: '0.85rem'
+                    fontSize: '0.85rem',
+                    transform: 'skewX(10deg)'
                   }}
                 >
                   RESET
@@ -144,7 +147,7 @@ const WeatherWidget: React.FC<WeatherWidgetProps> = ({ location, isCollapsed, on
               )}
             </form>
 
-            <div className="widget-content">
+            <div className="widget-content" style={{ transform: 'skewX(5deg)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--p3r-blue-dark)', padding: '20px', borderLeft: '8px solid var(--p3r-blue-light)', boxShadow: '4px 4px 0px rgba(0,0,0,0.3)', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {weather.weather[0]?.icon && (
