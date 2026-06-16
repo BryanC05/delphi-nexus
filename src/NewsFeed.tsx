@@ -177,18 +177,19 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
 
         console.log(`FETCH_INIT: country=${searchCountry}, query=${activeQuery}, mode=${newsMode}`);
 
-        // If in Indonesia mode, only fetch Indo news. If global, fetch both or based on search.
-        if (newsMode === 'indonesia' || (newsMode === 'global' && (searchCountry === 'id' || activeQuery.toLowerCase().includes('indonesia')))) {
-          console.log('FETCH_ID: Fetching from Berita Indo API...');
+        // If in Indonesia mode, exclusively fetch Indo news from local APIs.
+        if (newsMode === 'indonesia') {
+          console.log('FETCH_ID: Fetching exclusively from Berita Indo API...');
           const indoNews = await fetchIndonesianNews();
           console.log(`FETCH_ID_DONE: Found ${indoNews.length} articles`);
           combined = [...indoNews];
         }
 
+        // If in Global mode, fetch standard global APIs.
         if (newsMode === 'global') {
           const standardNews = await fetchArticlesForCountry(searchCountry);
           console.log(`FETCH_STD: Found ${standardNews.length} articles for ${searchCountry}`);
-          combined = [...combined, ...standardNews];
+          combined = [...standardNews];
         }
 
         // Final fallback to 'us' top headlines if absolutely nothing is found on page 1
