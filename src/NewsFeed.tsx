@@ -147,13 +147,24 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
         const searchCountry = fallbackCountryRef.current || countryCode;
         let combined: NewsArticle[] = [];
 
+        // If searching specifically for Indonesia or the country is Indonesia
         if (searchCountry === 'id' || activeQuery.toLowerCase().includes('indonesia')) {
           const indoNews = await fetchIndonesianNews();
           combined = [...indoNews];
         }
 
+        // Always attempt to fetch from standard APIs to supplement or fallback
         const standardNews = await fetchArticlesForCountry(searchCountry);
         combined = [...combined, ...standardNews];
+
+        // Final fallback to 'us' top headlines if absolutely nothing is found on page 1
+        if (combined.length === 0 && searchCountry !== 'us' && page === 1 && !activeQuery) {
+          const fallbackNews = await fetchArticlesForCountry('us');
+          combined = [...fallbackNews];
+          if (combined.length > 0) {
+            fallbackCountryRef.current = 'us';
+          }
+        }
 
         combined.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
 
