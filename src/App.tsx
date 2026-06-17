@@ -30,7 +30,7 @@ const App: React.FC = () => {
   // Settings & Theme State
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [soundOn, setSoundOn] = useState<boolean>(isSoundEnabled);
-  const [activeTheme, setActiveTheme] = useState<string>(() => localStorage.getItem('activeTheme') || 'P3 Reload');
+  const [activeTheme, setActiveTheme] = useState<string>(() => localStorage.getItem('activeTheme') || 'Delphi Blue');
   const [showAI, setShowAI] = useState<boolean>(false);
   const [newsContext, setNewsContext] = useState<string>('');
   const [collapsedWidgets, setCollapsedWidgets] = useState<Record<string, boolean>>(() => JSON.parse(localStorage.getItem('collapsedWidgets') || '{}'));
@@ -59,7 +59,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
 
   const THEMES = [
-    { name: 'P3 Reload', hex: '#00A3E0', rgb: '0, 163, 224' },
+    { name: 'Delphi Blue', hex: '#00A3E0', rgb: '0, 163, 224' },
     { name: 'Neon Cyan', hex: '#00f0ff', rgb: '0, 240, 255' },
     { name: 'Matrix Green', hex: '#00ff41', rgb: '0, 255, 65' },
     { name: 'Alert Red', hex: '#ff003c', rgb: '255, 0, 60' },
@@ -76,8 +76,8 @@ const App: React.FC = () => {
     document.documentElement.style.setProperty('--accent-color', theme.hex);
     document.documentElement.style.setProperty('--accent-glow', `0 0 10px rgba(${theme.rgb}, 0.3), inset 0 0 10px rgba(${theme.rgb}, 0.05)`);
     
-    // Add P3R specific variables if theme is P3 Reload
-    if (activeTheme === 'P3 Reload') {
+    // Add variables for active theme (Delphi Blue)
+    if (activeTheme === 'Delphi Blue') {
       document.documentElement.style.setProperty('--bg-color', '#000c1d');
       document.documentElement.style.setProperty('--card-bg', 'rgba(0, 45, 98, 0.7)');
     } else {

@@ -18,7 +18,7 @@ type AITerminalWidgetProps = {
 const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, contextData, onCommand }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'system', content: 'DATA UPLINK ESTABLISHED. WELCOME TO THE DARK HOUR.' }
+    { role: 'system', content: 'DATA UPLINK ESTABLISHED. WELCOME TO THE TERMINAL.' }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -54,7 +54,7 @@ const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, co
         {
           model: 'llama-3.1-8b-instant',
           messages: [
-            { role: 'system', content: `You are a highly advanced Persona 3 Reload style AI system. Keep answers concise, bold, and use a P3R/S.E.E.S. terminal tone. Use terms like "Tartarus", "Evoker", "Dark Hour" when appropriate. You now have access to specialized INDONESIA DATA LINKS (CNN Indonesia, CNBC Indonesia). CURRENT DASHBOARD DATA: ${contextData || 'No data available.'}` },
+            { role: 'system', content: `You are a highly advanced system AI. Keep answers concise, clear, and professional. You now have access to specialized INDONESIA DATA LINKS (CNN Indonesia, CNBC Indonesia). CURRENT DASHBOARD DATA: ${contextData || 'No data available.'}` },
             { role: 'user', content: userMsg }
           ],
         },
@@ -80,7 +80,7 @@ const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, co
     <div className={`ai-sidebar ${isOpen ? 'open' : ''}`}>
       <div className="ai-sidebar-header">
         <div className="ai-sidebar-title-container">
-          <h3>PERSONA_AI</h3>
+          <h3>TERMINAL_AI</h3>
           <span className="api-indicator online">ONLINE</span>
         </div>
         <button onClick={() => { playClickSound(); onClose(); }} className="ai-close-btn">×</button>

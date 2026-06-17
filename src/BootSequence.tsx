@@ -6,10 +6,10 @@ const BootSequence: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
 
   useEffect(() => {
     const sequence = [
-      "ESTABLISHING LINK TO TARTARUS...",
+      "CONNECTING TO DATA CHANNELS...",
       "SUMMONING DATA STREAMS...",
-      "CALIBRATING PERSONA INTERFACE...",
-      "DARK HOUR APPROACHING...",
+      "CALIBRATING SYSTEM INTERFACE...",
+      "SYNCHRONIZING SYSTEM TIME...",
       "DATA NETWORK ONLINE."
     ];
 
