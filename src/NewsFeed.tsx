@@ -10,6 +10,7 @@ type NewsFeedProps = {
 };
 
 const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTrigger }) => {
+  const newsHeaderRef = useRef<HTMLDivElement>(null);
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasKeys, setHasKeys] = useState<boolean>(true);
@@ -273,7 +274,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
 
   return (
     <>
-      <div className="news-header">
+      <div ref={newsHeaderRef} className="news-header">
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', marginBottom: '20px' }}>
           <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
             <h2 
@@ -308,7 +309,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
 
           <div style={{ display: 'flex', background: 'var(--p3r-blue-dark)', padding: '4px', borderLeft: '4px solid var(--p3r-blue-light)' }}>
             <button 
-              onClick={() => { playClickSound(); setNewsMode('global'); setPage(1); setQueryInput(''); setActiveQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onClick={() => { playClickSound(); setNewsMode('global'); setPage(1); setQueryInput(''); setActiveQuery(''); newsHeaderRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
               onMouseEnter={playHoverSound}
               style={{
                 background: newsMode === 'global' ? 'var(--p3r-blue-light)' : 'transparent',
@@ -321,7 +322,7 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
               }}
             >GLOBAL</button>
             <button 
-              onClick={() => { playClickSound(); setNewsMode('indonesia'); setPage(1); setQueryInput(''); setActiveQuery(''); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onClick={() => { playClickSound(); setNewsMode('indonesia'); setPage(1); setQueryInput(''); setActiveQuery(''); newsHeaderRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
               onMouseEnter={playHoverSound}
               style={{
                 background: newsMode === 'indonesia' ? 'var(--p3r-blue-light)' : 'transparent',
