@@ -495,7 +495,6 @@ body {
   flex-wrap: wrap;
 }
 
-.news-category-select,
 .news-search-input {
   padding: 10px 16px;
   border: 1px solid var(--card-border);
@@ -508,10 +507,116 @@ body {
   transition: all 0.2s ease;
 }
 
-.news-category-select:focus,
 .news-search-input:focus {
   border-color: var(--accent-color);
   box-shadow: var(--accent-glow);
+}
+
+/* Custom Dropdown styling matching Delphi / P3R style */
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+  min-width: 160px;
+  z-index: 100;
+}
+
+.custom-dropdown-trigger {
+  width: 100%;
+  padding: 10px 16px;
+  background: rgba(0, 45, 98, 0.35);
+  border: 1px solid var(--p3r-blue-light);
+  border-left: 5px solid var(--p3r-blue-light);
+  color: #fff;
+  font-family: var(--font-p3r);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transform: skewX(-10deg);
+  transition: all 0.2s ease;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.4);
+}
+
+.custom-dropdown-trigger > * {
+  transform: skewX(10deg); /* Deskew inner content */
+}
+
+.custom-dropdown-trigger:hover {
+  background: rgba(0, 163, 224, 0.2);
+  box-shadow: 0 0 10px var(--p3r-blue-light);
+}
+
+.custom-dropdown-arrow {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+  color: var(--p3r-blue-light);
+}
+
+.custom-dropdown-arrow.open {
+  transform: skewX(10deg) rotate(180deg); /* Adjust for the deskew rotation! */
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(0, 15, 38, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%);
+  border: 2px solid #fff;
+  border-left: 8px solid var(--p3r-blue-light);
+  border-radius: 0;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.6);
+  transform: skewX(-10deg);
+  animation: p3r-dropdown-in 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+  overflow: hidden;
+}
+
+@keyframes p3r-dropdown-in {
+  0% { transform: skewX(-10deg) translateY(-10px); opacity: 0; }
+  100% { transform: skewX(-10deg) translateY(0); opacity: 1; }
+}
+
+.custom-dropdown-item {
+  padding: 10px 16px;
+  color: #fff;
+  font-family: var(--font-p3r);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.custom-dropdown-item > * {
+  transform: skewX(10deg);
+}
+
+.custom-dropdown-item:hover {
+  background: rgba(0, 163, 224, 0.25);
+  border-left-color: var(--p3r-blue-light);
+  transform: translateX(6px);
+}
+
+.custom-dropdown-item.active {
+  background: var(--p3r-blue-light);
+  color: #000;
+  border-left-color: #fff;
+}
+
+.custom-dropdown-item.active:hover {
+  background: #fff;
+  color: #000;
 }
 
 .news-search-wrapper {

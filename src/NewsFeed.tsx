@@ -18,6 +18,19 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
   // Basic Cache to avoid 429s
   const lastFetchRef = useRef<{ key: string; timestamp: number } | null>(null);
 
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // Persistent Search & Category from LocalStorage
   const [activeQuery, setActiveQuery] = useState<string>(() => localStorage.getItem('newsQuery') || '');
   const [queryInput, setQueryInput] = useState<string>(activeQuery);
@@ -340,21 +353,39 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
         {activeTab === 'feed' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <form className="news-controls" onSubmit={handleSearch}>
-              <select 
-                className="news-category-select" 
-                value={category} 
-                onChange={(e) => {
-                    playClickSound();
-                  setCategory(e.target.value);
-                  setPage(1);
-                  fallbackCountryRef.current = null;
-                }}
+              <div ref={dropdownRef} className="custom-dropdown">
+                <button
+                  type="button"
+                  className="custom-dropdown-trigger"
+                  onClick={() => { playClickSound(); setDropdownOpen(!dropdownOpen); }}
                   onMouseEnter={playHoverSound}
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat} style={{ background: '#002D62', color: '#fff' }}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
-                ))}
-              </select>
+                >
+                  <span className="custom-dropdown-value">
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </span>
+                  <span className={`custom-dropdown-arrow ${dropdownOpen ? 'open' : ''}`}>▼</span>
+                </button>
+                {dropdownOpen && (
+                  <ul className="custom-dropdown-menu">
+                    {categories.map(cat => (
+                      <li
+                        key={cat}
+                        className={`custom-dropdown-item ${category === cat ? 'active' : ''}`}
+                        onClick={() => {
+                          playClickSound();
+                          setCategory(cat);
+                          setPage(1);
+                          fallbackCountryRef.current = null;
+                          setDropdownOpen(false);
+                        }}
+                        onMouseEnter={playHoverSound}
+                      >
+                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               <div className="news-search-wrapper">
                   <input type="text" className="news-search-input" placeholder="Search keywords..." value={queryInput} onChange={(e) => setQueryInput(e.target.value)} onMouseEnter={playHoverSound} style={{ borderRadius: 0, borderLeft: '4px solid var(--p3r-blue-light)' }}/>
                   <button type="submit" className="news-search-button" onMouseEnter={playHoverSound}>Search</button>
