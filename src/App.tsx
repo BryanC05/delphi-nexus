@@ -349,33 +349,32 @@ const App: React.FC = () => {
       {showSettings && (
         <div className="settings-overlay" onClick={() => setShowSettings(false)}>
           <div className="settings-panel" onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ margin: 0, color: 'var(--accent-color)', fontFamily: 'var(--font-tech)', textTransform: 'uppercase', letterSpacing: '2px' }}>System Config</h2>
-              <button onClick={() => { playClickSound(); setShowSettings(false); }} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
+            <div className="settings-header">
+              <h2 className="settings-title">System Config</h2>
+              <button onClick={() => { playClickSound(); setShowSettings(false); }} className="settings-close-btn">×</button>
             </div>
 
             <div className="settings-section">
-              <h4 style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', marginBottom: '12px' }}>Cloud Uplink (Firebase)</h4>
+              <h4 className="settings-section-title">Cloud Uplink (Firebase)</h4>
               {user ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ color: 'var(--accent-color)', fontSize: '0.85rem', fontFamily: 'var(--font-tech)' }}>Authenticated as: {user.email}</div>
-                  <button className="news-search-button" onClick={() => { playClickSound(); signOut(auth); }} onMouseEnter={playHoverSound} style={{ width: '100%', borderColor: '#fc8181', color: '#fc8181' }}>DISCONNECT (LOGOUT)</button>
+                  <div className="settings-auth-status">Authenticated as: {user.email}</div>
+                  <button className="settings-logout-btn" onClick={() => { playClickSound(); signOut(auth); }} onMouseEnter={playHoverSound}>DISCONNECT (LOGOUT)</button>
                 </div>
               ) : (
-                <button className="news-search-button" onClick={() => { playClickSound(); signInWithPopup(auth, googleProvider); }} onMouseEnter={playHoverSound} style={{ width: '100%' }}>ESTABLISH UPLINK (GOOGLE LOGIN)</button>
+                <button className="news-search-button" onClick={() => { playClickSound(); signInWithPopup(auth, googleProvider); }} onMouseEnter={playHoverSound}>ESTABLISH UPLINK (GOOGLE LOGIN)</button>
               )}
             </div>
             
             <div className="settings-section">
-              <h4 style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', marginBottom: '12px' }}>Active Modules</h4>
+              <h4 className="settings-section-title">Active Modules</h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 {WIDGET_OPTIONS.map(opt => (
-                  <label key={opt.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontFamily: 'var(--font-tech)', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  <label key={opt.id} className="settings-checkbox-label">
                     <input 
                       type="checkbox" 
                       checked={activeWidgets.includes(opt.id)} 
                       onChange={() => toggleWidgetActive(opt.id)}
-                      style={{ accentColor: 'var(--accent-color)' }}
                     />
                     {opt.label}
                   </label>
@@ -384,20 +383,20 @@ const App: React.FC = () => {
             </div>
 
             <div className="settings-section">
-              <h4 style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', marginBottom: '12px' }}>Audio Feedback</h4>
+              <h4 className="settings-section-title">Audio Feedback</h4>
               <button className={`sound-toggle ${soundOn ? 'active' : ''}`} onClick={handleSoundToggle} onMouseEnter={playHoverSound}>
                 {soundOn ? 'SOUND: ON' : 'SOUND: OFF'}
               </button>
             </div>
 
             <div className="settings-section">
-              <h4 style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-tech)', marginBottom: '12px' }}>UI Color Protocol</h4>
+              <h4 className="settings-section-title">UI Color Protocol</h4>
               <div className="theme-grid">
                 {THEMES.map(theme => (
                   <div 
                     key={theme.name}
                     className={`theme-swatch ${activeTheme === theme.name ? 'active' : ''}`}
-                    style={{ backgroundColor: theme.hex, boxShadow: activeTheme === theme.name ? `0 0 15px ${theme.hex}` : 'none' }}
+                    style={{ backgroundColor: theme.hex }}
                     onClick={() => { setActiveTheme(theme.name); syncToCloud({ activeTheme: theme.name }); playClickSound(); }}
                     onMouseEnter={playHoverSound}
                     title={theme.name}

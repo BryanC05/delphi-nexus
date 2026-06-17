@@ -79,9 +79,9 @@ const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, co
   return (
     <div className={`ai-sidebar ${isOpen ? 'open' : ''}`}>
       <div className="ai-sidebar-header">
-        <div style={{ display: 'flex', alignItems: 'center', transform: 'skewX(2deg)' }}>
-          <h3 style={{ margin: 0, fontFamily: 'var(--font-p3r)', fontSize: '1.5rem' }}>PERSONA_AI</h3>
-          <span className="api-indicator" style={{ marginLeft: '12px', background: 'var(--p3r-blue-light)', color: '#000', border: 'none' }}>ONLINE</span>
+        <div className="ai-sidebar-title-container">
+          <h3>PERSONA_AI</h3>
+          <span className="api-indicator online">ONLINE</span>
         </div>
         <button onClick={() => { playClickSound(); onClose(); }} className="ai-close-btn">×</button>
       </div>
@@ -127,13 +127,12 @@ const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, co
           {isLoading && <div style={{ color: 'var(--accent-color)', opacity: 0.7, fontFamily: 'var(--font-tech)', fontSize: '0.85rem' }}>{'> SYS_AI: Processing...'}</div>}
           <div ref={endOfMessagesRef} />
         </div>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', borderTop: '2px solid var(--p3r-blue-light)', paddingTop: '12px', transform: 'skewX(2deg)' }}>
-          <span style={{ color: 'var(--p3r-blue-light)', fontFamily: 'var(--font-p3r)' }}>{'>'}</span>
+        <form onSubmit={handleSubmit} className="ai-input-form">
+          <span className="ai-input-prompt">{'>'}</span>
           <input 
             type="text" 
             value={input} 
             onChange={(e) => setInput(e.target.value)} 
-            style={{ flexGrow: 1, background: 'transparent', border: 'none', color: '#fff', fontFamily: 'var(--font-tech)', outline: 'none', fontSize: '1.1rem' }}
             placeholder="Type your command..."
             autoComplete="off"
           />
