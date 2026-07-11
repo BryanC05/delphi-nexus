@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Outfit:wght@400;500;700;900&display=swap');
+
 /* Delphi Inspired Theme Variables */
 :root {
   --bg-color: #000c1d;
@@ -7,43 +9,57 @@
   --text-muted: #b0d4ff;
   --accent-color: #00A3E0;
   --accent-glow: 0 0 15px rgba(0, 163, 224, 0.4);
+  --bg-pattern-color: rgba(0, 163, 224, 0.05);
   --p3r-blue-dark: #002D62;
   --p3r-blue-light: #00A3E0;
   --p3r-cyan: #00e5ff;
   --shadow-sm: 4px 4px 0px rgba(0, 0, 0, 0.3);
   --shadow-md: 8px 8px 0px rgba(0, 0, 0, 0.4);
   --radius: 0px; /* P3R uses sharp angles */
-  --font-tech: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-p3r: "Impact", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-tech: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-p3r: 'Orbitron', 'Outfit', sans-serif;
 }
 
 /* Reset & Base */
-body {
+html, body {
+  font-family: var(--font-tech);
   background-color: var(--bg-color);
   background-image: 
-    linear-gradient(135deg, rgba(0, 163, 224, 0.05) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(0, 163, 224, 0.05) 25%, transparent 25%),
-    linear-gradient(45deg, rgba(0, 163, 224, 0.05) 25%, transparent 25%),
-    linear-gradient(315deg, rgba(0, 163, 224, 0.05) 25%, transparent 25%);
+    linear-gradient(135deg, var(--bg-pattern-color) 25%, transparent 25%),
+    linear-gradient(225deg, var(--bg-pattern-color) 25%, transparent 25%),
+    linear-gradient(45deg, var(--bg-pattern-color) 25%, transparent 25%),
+    linear-gradient(315deg, var(--bg-pattern-color) 25%, transparent 25%);
   background-size: 100px 100px;
   background-position: 50px 0, 50px 0, 0 0, 0 0;
   margin: 0;
   color: var(--text-main);
   overflow-x: hidden;
+  max-width: 100%;
+}
+/* Custom Scrollbars matching the Delphi / P3R style */
+html, * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-color) rgba(0, 12, 29, 0.6);
 }
 
-/* Custom Scrollbar for P3R style */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  background: rgba(0, 12, 29, 0.6);
+  border-left: 1px solid rgba(0, 163, 224, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--accent-color);
   border: 1px solid var(--bg-color);
+  box-shadow: 0 0 4px rgba(0, 240, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--p3r-cyan);
 }
 
 .dashboard {
@@ -66,14 +82,14 @@ body {
 }
 
 .header h1 {
-  font-size: 3.5rem;
+  font-size: 2rem;
   font-weight: 900;
   color: var(--text-main);
   text-transform: uppercase;
   margin: 0;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   font-family: var(--font-p3r);
-  text-shadow: 4px 4px 0px var(--p3r-blue-dark);
+  text-shadow: 3px 3px 0px var(--p3r-blue-dark);
 }
 
 /* Feature Sections */
@@ -87,6 +103,7 @@ body {
 .widgets-grid {
   display: grid;
   grid-template-columns: 1fr;
+  grid-auto-flow: dense;
   gap: 32px;
 }
 
@@ -538,13 +555,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transform: skewX(-10deg);
   transition: all 0.2s ease;
   box-shadow: 3px 3px 0px rgba(0,0,0,0.4);
-}
-
-.custom-dropdown-trigger > * {
-  transform: skewX(10deg); /* Deskew inner content */
 }
 
 .custom-dropdown-trigger:hover {
@@ -559,7 +571,7 @@ body {
 }
 
 .custom-dropdown-arrow.open {
-  transform: skewX(10deg) rotate(180deg); /* Adjust for the deskew rotation! */
+  transform: rotate(180deg);
 }
 
 .custom-dropdown-menu {
@@ -575,14 +587,13 @@ body {
   padding: 4px 0;
   list-style: none;
   box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.6);
-  transform: skewX(-10deg);
   animation: p3r-dropdown-in 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
   overflow: hidden;
 }
 
 @keyframes p3r-dropdown-in {
-  0% { transform: skewX(-10deg) translateY(-10px); opacity: 0; }
-  100% { transform: skewX(-10deg) translateY(0); opacity: 1; }
+  0% { transform: translateY(-10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 .custom-dropdown-item {
@@ -596,10 +607,6 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   border-left: 3px solid transparent;
-}
-
-.custom-dropdown-item > * {
-  transform: skewX(10deg);
 }
 
 .custom-dropdown-item:hover {
@@ -783,6 +790,12 @@ body {
   cursor: grab;
   display: flex;
   flex-direction: column;
+  z-index: 1;
+}
+
+.draggable-wrapper:hover,
+.draggable-wrapper:focus-within {
+  z-index: 1000;
 }
 
 .draggable-wrapper > .widget {
@@ -841,7 +854,6 @@ body {
   width: 95%;
   max-width: 460px;
   box-shadow: 12px 12px 0px rgba(0, 163, 224, 0.3), 24px 24px 0px rgba(0, 0, 0, 0.5);
-  transform: skewX(-4deg);
   animation: p3r-panel-in 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   position: relative;
   overflow: hidden;
@@ -866,14 +878,13 @@ body {
 }
 
 .settings-panel > * {
-  transform: skewX(4deg);
   position: relative;
   z-index: 1;
 }
 
 @keyframes p3r-panel-in {
-  0% { transform: scale(0.9) translateY(40px) skewX(-4deg); opacity: 0; }
-  100% { transform: scale(1) translateY(0) skewX(-4deg); opacity: 1; }
+  0% { transform: scale(0.9) translateY(40px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 .settings-header {
@@ -958,14 +969,13 @@ body {
   transition: all 0.2s ease;
   cursor: pointer;
   text-align: left;
-  transform: skewX(-8deg);
   width: 100%;
 }
 
 .settings-logout-btn:hover {
   background: #ff003c;
   color: #fff;
-  transform: skewX(-8deg) translateX(8px);
+  transform: translateX(8px);
   box-shadow: 0 0 15px rgba(255, 0, 60, 0.4);
 }
 
@@ -982,17 +992,15 @@ body {
   background: rgba(0, 45, 98, 0.25);
   border-left: 3px solid transparent;
   transition: all 0.2s ease;
-  transform: skewX(-6deg);
 }
 
 .settings-checkbox-label > * {
-  transform: skewX(6deg);
 }
 
 .settings-checkbox-label:hover {
   background: rgba(0, 163, 224, 0.15);
   border-left: 3px solid var(--p3r-blue-light);
-  transform: skewX(-6deg) translateX(6px);
+  transform: translateX(6px);
 }
 
 .settings-checkbox-label input[type="checkbox"] {
@@ -1017,12 +1025,11 @@ body {
   transition: all 0.2s ease;
   text-align: left;
   letter-spacing: 2px;
-  transform: skewX(-8deg);
 }
 
 .sound-toggle:hover {
   background: rgba(0, 163, 224, 0.2);
-  transform: skewX(-8deg) translateX(8px);
+  transform: translateX(8px);
 }
 
 .sound-toggle.active {
@@ -1035,7 +1042,7 @@ body {
 .sound-toggle.active:hover {
   background: #fff;
   color: #000;
-  transform: skewX(-8deg) translateX(8px);
+  transform: translateX(8px);
 }
 
 .theme-grid {
@@ -1048,9 +1055,9 @@ body {
 .theme-swatch {
   width: 36px;
   height: 36px;
-  clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+  border-radius: 50%;
   cursor: pointer;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
 }
 
@@ -1095,7 +1102,6 @@ body {
 .ai-sidebar-title-container {
   display: flex;
   align-items: center;
-  transform: skewX(-5deg);
 }
 
 .ai-sidebar-title-container h3 {
@@ -1145,7 +1151,6 @@ body {
   border: 2px solid var(--p3r-blue-light);
   background: rgba(0, 0, 0, 0.4);
   padding: 10px 15px;
-  transform: skewX(-10deg);
   margin-top: 15px;
   transition: all 0.2s ease;
 }
@@ -1153,10 +1158,6 @@ body {
 .ai-input-form:focus-within {
   border-color: #fff;
   box-shadow: 0 0 15px var(--p3r-blue-light);
-}
-
-.ai-input-form > * {
-  transform: skewX(10deg);
 }
 
 .ai-input-prompt {
@@ -1193,14 +1194,13 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  transform: skewX(-15deg);
   box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
 }
 
 .settings-btn:hover {
   background: var(--p3r-blue-light);
   color: var(--p3r-blue-dark);
-  transform: skewX(-15deg) scale(1.15);
+  transform: scale(1.15);
   box-shadow: 0 0 15px var(--p3r-blue-light);
 }
 
@@ -1225,14 +1225,13 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  transform: skewX(-15deg);
   box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
 }
 
 .ai-toggle-btn:hover {
   background: var(--p3r-blue-light);
   color: var(--p3r-blue-dark);
-  transform: skewX(-15deg) scale(1.15);
+  transform: scale(1.15);
   box-shadow: 0 0 15px var(--p3r-blue-light);
 }
 
@@ -1283,4 +1282,165 @@ body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+}
+
+/* Anime tracking database link hover effects */
+.anime-db-link:hover {
+  background: rgba(0, 163, 224, 0.2) !important;
+  border-color: var(--p3r-blue-light) !important;
+  transform: translateX(4px);
+  box-shadow: 0 0 8px rgba(0, 163, 224, 0.3);
+}
+
+/* ==========================================================================
+   CLASSIC DELPHI UI OVERRIDES
+   ========================================================================== */
+[data-ui-mode="classic"] {
+  --radius: 12px;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+}
+
+/* Revert body background pattern grid in classic mode */
+[data-ui-mode="classic"] body {
+  background-image: none !important;
+  background-color: var(--bg-color);
+}
+
+/* Remove slants and block styles from header */
+[data-ui-mode="classic"] .header {
+  border-left: none;
+  border-bottom: 2px solid var(--accent-color);
+  background: rgba(13, 22, 37, 0.5);
+  margin-bottom: 30px;
+  border-radius: var(--radius);
+}
+
+[data-ui-mode="classic"] .header h1 {
+  font-size: 1.8rem;
+  letter-spacing: 0px;
+  text-shadow: none;
+}
+
+/* Style cards/widgets in classic mode */
+[data-ui-mode="classic"] .widget {
+  border-radius: var(--radius) !important;
+  border-left: none !important;
+  border-top: 4px solid var(--accent-color) !important;
+  transform: none !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+}
+
+[data-ui-mode="classic"] .widget:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-ui-mode="classic"] .widget h3 {
+  border-bottom: 2px solid var(--accent-color);
+  font-size: 1.25rem;
+  padding-bottom: 4px;
+}
+
+/* Revert custom scrollbar corners to rounded */
+[data-ui-mode="classic"] ::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS OVERRIDES
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Dashboard layout padding */
+  .dashboard {
+    padding: 16px !important;
+  }
+
+  /* Header mobile adjustments */
+  .header {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 16px !important;
+    padding: 20px 16px !important;
+    margin-bottom: 24px !important;
+    border-left-width: 6px !important;
+  }
+
+  .header h1 {
+    font-size: 1.6rem !important;
+  }
+
+  .header > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .header > div:last-child button {
+    flex-grow: 1 !important;
+    text-align: center !important;
+    padding: 8px 12px !important;
+    font-size: 0.7rem !important;
+  }
+
+  /* Grid & Card layout gaps */
+  .widgets-grid {
+    gap: 16px !important;
+  }
+
+  .widget {
+    padding: 16px !important;
+  }
+
+  .widget h3 {
+    font-size: 1.2rem !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Config overlay panel settings */
+  .settings-panel {
+    padding: 20px !important;
+    border-left-width: 8px !important;
+    box-shadow: 6px 6px 0px rgba(0, 163, 224, 0.3), 12px 12px 0px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .settings-title {
+    font-size: 1.4rem !important;
+  }
+}
+
+/* Extra small mobile adjustments */
+@media (max-width: 500px) {
+  .ai-sidebar {
+    width: 100% !important;
+    right: -100% !important;
+    border-left: none !important;
+    border-top: 10px solid var(--p3r-blue-light) !important;
+  }
+  
+  .ai-sidebar.open {
+    right: 0 !important;
+  }
+
+  .ai-sidebar-header {
+    margin-bottom: 16px !important;
+    padding-bottom: 8px !important;
+  }
+}
+
+/* Anime Widget Scrollable Container constraints */
+.anime-scroll-container {
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+@media (max-width: 768px) {
+  .anime-scroll-container {
+    max-height: 320px;
+  }
 }

@@ -10,13 +10,32 @@ import AnimeTrackerWidget from './AnimeTrackerWidget';
 import IntelWidget from './IntelWidget';
 import BioHazardWidget from './BioHazardWidget';
 import SolarWeatherWidget from './SolarWeatherWidget';
-import LaunchTrackerWidget from './LaunchTrackerWidget';
+import CosmicMonitorWidget from './CosmicMonitorWidget';
 import CyberPulseWidget from './CyberPulseWidget';
 import NewsFeed from './NewsFeed';
-import { playHoverSound, playClickSound, toggleSound, isSoundEnabled } from './soundUtils';
+import MorseWidget from './MorseWidget';
+import LanguageWidget from './LanguageWidget';
+import DocModal from './DocModal';
+import { playHoverSound, playClickSound } from './soundUtils';
 import { auth, db, googleProvider } from './firebase';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+
+const enforceTopWidgets = (widgets: string[]): string[] => {
+  const sorted = [...widgets];
+  const weatherIdx = sorted.indexOf('weather');
+  if (weatherIdx !== -1) {
+    sorted.splice(weatherIdx, 1);
+    sorted.splice(0, 0, 'weather');
+  }
+  const animeIdx = sorted.indexOf('anime');
+  if (animeIdx !== -1) {
+    sorted.splice(animeIdx, 1);
+    const targetPos = sorted.includes('weather') ? 1 : 0;
+    sorted.splice(targetPos, 0, 'anime');
+  }
+  return sorted;
+};
 
 const App: React.FC = () => {
   // Boot Sequence State (Tracks if the user has already seen the boot sequence this session)
@@ -29,7 +48,6 @@ const App: React.FC = () => {
   
   // Settings & Theme State
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const [soundOn, setSoundOn] = useState<boolean>(isSoundEnabled);
   const [activeTheme, setActiveTheme] = useState<string>(() => localStorage.getItem('activeTheme') || 'Delphi Blue');
   const [showAI, setShowAI] = useState<boolean>(false);
   const [newsContext, setNewsContext] = useState<string>('');
@@ -51,20 +69,86 @@ const App: React.FC = () => {
       // Deduplicate to prevent double widgets if 'media' and 'anime' were both present
       parsed = Array.from(new Set(parsed));
       
-      localStorage.setItem('activeWidgets', JSON.stringify(parsed));
-      return parsed;
+      const enforced = enforceTopWidgets(parsed);
+      localStorage.setItem('activeWidgets', JSON.stringify(enforced));
+      return enforced;
     }
-    return ['weather', 'anime', 'bio', 'solar', 'launch', 'cyber', 'threats', 'intel'];
+    return ['weather', 'anime', 'bio', 'solar', 'launch', 'cyber', 'threats', 'intel', 'morse', 'language'];
   });
   const [user, setUser] = useState<any>(null);
+  const [showDocModal, setShowDocModal] = useState(false);
 
   const THEMES = [
-    { name: 'Delphi Blue', hex: '#00A3E0', rgb: '0, 163, 224' },
-    { name: 'Neon Cyan', hex: '#00f0ff', rgb: '0, 240, 255' },
-    { name: 'Matrix Green', hex: '#00ff41', rgb: '0, 255, 65' },
-    { name: 'Alert Red', hex: '#ff003c', rgb: '255, 0, 60' },
-    { name: 'Deep Purple', hex: '#b026ff', rgb: '176, 38, 255' },
+    {
+      name: 'Delphi Blue',
+      hex: '#00A3E0',
+      rgb: '0, 163, 224',
+      bgColor: '#000c1d',
+      cardBg: 'rgba(0, 45, 98, 0.7)',
+      cardBorder: '#00A3E0',
+      textMuted: '#b0d4ff',
+      blueDark: '#002D62',
+      blueLight: '#00A3E0',
+      cyan: '#00e5ff'
+    },
+    {
+      name: 'Neon Cyan',
+      hex: '#00f0ff',
+      rgb: '0, 240, 255',
+      bgColor: '#001015',
+      cardBg: 'rgba(0, 30, 40, 0.7)',
+      cardBorder: '#00f0ff',
+      textMuted: '#80f8ff',
+      blueDark: '#001e28',
+      blueLight: '#00f0ff',
+      cyan: '#00a3e0'
+    },
+    {
+      name: 'Matrix Green',
+      hex: '#00ff41',
+      rgb: '0, 255, 65',
+      bgColor: '#001202',
+      cardBg: 'rgba(0, 38, 8, 0.7)',
+      cardBorder: '#00ff41',
+      textMuted: '#80ff9a',
+      blueDark: '#002608',
+      blueLight: '#00ff41',
+      cyan: '#58ff00'
+    },
+    {
+      name: 'Alert Red',
+      hex: '#ff003c',
+      rgb: '255, 0, 60',
+      bgColor: '#170005',
+      cardBg: 'rgba(60, 0, 15, 0.7)',
+      cardBorder: '#ff003c',
+      textMuted: '#ffb0c1',
+      blueDark: '#3c000f',
+      blueLight: '#ff003c',
+      cyan: '#ff5c8a'
+    },
+    {
+      name: 'Deep Purple',
+      hex: '#b026ff',
+      rgb: '176, 38, 255',
+      bgColor: '#0c0017',
+      cardBg: 'rgba(38, 0, 60, 0.7)',
+      cardBorder: '#b026ff',
+      textMuted: '#ebc8ff',
+      blueDark: '#26003c',
+      blueLight: '#b026ff',
+      cyan: '#df80ff'
+    }
   ];
+
+  const [uiMode, setUiMode] = useState<'p3r' | 'classic'>(() => {
+    return (localStorage.getItem('uiMode') as 'p3r' | 'classic') || 'p3r';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-ui-mode', uiMode);
+    localStorage.setItem('uiMode', uiMode);
+  }, [uiMode]);
 
   const handleBootComplete = () => {
     sessionStorage.setItem('booted', 'true');
@@ -75,18 +159,27 @@ const App: React.FC = () => {
     const theme = THEMES.find(t => t.name === activeTheme) || THEMES[0];
     document.documentElement.style.setProperty('--accent-color', theme.hex);
     document.documentElement.style.setProperty('--accent-glow', `0 0 10px rgba(${theme.rgb}, 0.3), inset 0 0 10px rgba(${theme.rgb}, 0.05)`);
-    
-    // Add variables for active theme (Delphi Blue)
-    if (activeTheme === 'Delphi Blue') {
-      document.documentElement.style.setProperty('--bg-color', '#000c1d');
-      document.documentElement.style.setProperty('--card-bg', 'rgba(0, 45, 98, 0.7)');
-    } else {
-      document.documentElement.style.setProperty('--bg-color', '#050b14');
-      document.documentElement.style.setProperty('--card-bg', 'rgba(13, 22, 37, 0.85)');
-    }
+    document.documentElement.style.setProperty('--bg-color', theme.bgColor);
+    document.documentElement.style.setProperty('--card-bg', theme.cardBg);
+    document.documentElement.style.setProperty('--card-border', theme.cardBorder);
+    document.documentElement.style.setProperty('--text-muted', theme.textMuted);
+    document.documentElement.style.setProperty('--p3r-blue-dark', theme.blueDark);
+    document.documentElement.style.setProperty('--p3r-blue-light', theme.blueLight);
+    document.documentElement.style.setProperty('--p3r-cyan', theme.cyan);
+    document.documentElement.style.setProperty('--bg-pattern-color', `rgba(${theme.rgb}, 0.05)`);
 
     localStorage.setItem('activeTheme', activeTheme);
   }, [activeTheme]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowDocModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!auth) return;
@@ -99,8 +192,9 @@ const App: React.FC = () => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             if (data.activeWidgets) {
-              setActiveWidgets(data.activeWidgets);
-              localStorage.setItem('activeWidgets', JSON.stringify(data.activeWidgets));
+              const enforced = enforceTopWidgets(data.activeWidgets);
+              setActiveWidgets(enforced);
+              localStorage.setItem('activeWidgets', JSON.stringify(enforced));
             }
             if (data.collapsedWidgets) {
               setCollapsedWidgets(data.collapsedWidgets);
@@ -152,10 +246,21 @@ const App: React.FC = () => {
         (error) => {
           console.error('Geolocation error:', error.message);
           setIsLocating(false); // Fall back to defaults on denial/error
-        }
+          setActiveWidgets(prev => {
+            const next = enforceTopWidgets(prev.filter(w => w !== 'bio' && w !== 'solar'));
+            localStorage.setItem('activeWidgets', JSON.stringify(next));
+            return next;
+          });
+        },
+        { enableHighAccuracy: false, timeout: 6000, maximumAge: 600000 }
       );
     } else {
       setIsLocating(false);
+      setActiveWidgets(prev => {
+        const next = enforceTopWidgets(prev.filter(w => w !== 'bio' && w !== 'solar'));
+        localStorage.setItem('activeWidgets', JSON.stringify(next));
+        return next;
+      });
     }
   }, []);
 
@@ -182,13 +287,6 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSoundToggle = () => {
-    const newVal = !soundOn;
-    setSoundOn(newVal);
-    toggleSound(newVal);
-    if (newVal) playClickSound();
-  };
-
   const handleNewsUpdate = useCallback((articles: any[]) => {
     setNewsContext(articles.slice(0, 5).map(a => a.title).join(' | '));
   }, []);
@@ -206,9 +304,10 @@ const App: React.FC = () => {
   const toggleWidgetActive = (id: string) => {
     setActiveWidgets(prev => {
       const newWidgets = prev.includes(id) ? prev.filter(w => w !== id) : [...prev, id];
-      localStorage.setItem('activeWidgets', JSON.stringify(newWidgets));
-      syncToCloud({ activeWidgets: newWidgets });
-      return newWidgets;
+      const enforced = enforceTopWidgets(newWidgets);
+      localStorage.setItem('activeWidgets', JSON.stringify(enforced));
+      syncToCloud({ activeWidgets: enforced });
+      return enforced;
     });
     playClickSound();
   };
@@ -225,8 +324,9 @@ const App: React.FC = () => {
     const [draggedWidget] = newOrder.splice(draggedIdx, 1);
     newOrder.splice(index, 0, draggedWidget);
     
-    setActiveWidgets(newOrder);
-    localStorage.setItem('activeWidgets', JSON.stringify(newOrder));
+    const enforced = enforceTopWidgets(newOrder);
+    setActiveWidgets(enforced);
+    localStorage.setItem('activeWidgets', JSON.stringify(enforced));
     playClickSound();
   };
 
@@ -235,10 +335,12 @@ const App: React.FC = () => {
     { id: 'anime', label: 'Anime Tracker (Next Season)' },
     { id: 'bio', label: 'Bio-Hazard Monitor' },
     { id: 'solar', label: 'Solar Weather' },
-    { id: 'launch', label: 'Orbital Launch Tracker' },
+    { id: 'launch', label: 'Cosmic Monitor' },
     { id: 'cyber', label: 'Cyber Pulse' },
     { id: 'threats', label: 'Zero-Day Monitor' },
-    { id: 'intel', label: 'Daily Intel' }
+    { id: 'intel', label: 'Daily Intel' },
+    { id: 'morse', label: 'Morse Code Station' },
+    { id: 'language', label: 'Linguistic Dialects' }
   ];
 
   const handleTerminalCommand = (cmd: string, arg: string) => {
@@ -300,41 +402,81 @@ const App: React.FC = () => {
           <h1>Delphi Nexus</h1>
           {isLocating && <p style={{ color: '#fff', margin: '8px 0 0 0', opacity: 0.7, fontFamily: 'var(--font-tech)' }}>LOCATING GEOGRAPHIC COORDINATES...</p>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            onClick={() => { playClickSound(); setUiMode(uiMode === 'p3r' ? 'classic' : 'p3r'); }}
+            style={{
+              background: 'transparent',
+              color: 'var(--accent-color)',
+              border: '1px solid var(--accent-color)',
+              padding: '6px 14px',
+              fontSize: '0.75rem',
+              fontFamily: 'var(--font-p3r)',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              boxShadow: '0 0 8px rgba(0, 0, 0, 0.2)',
+              transition: 'all 0.2s ease',
+              outline: 'none'
+            }}
+            onMouseEnter={playHoverSound}
+          >
+            🖥️ Style: {uiMode === 'p3r' ? 'Stylized P3R' : 'Classic Delphi'}
+          </button>
+          <button 
+            onClick={() => { playClickSound(); setShowDocModal(true); }}
+            style={{
+              background: 'transparent',
+              color: 'var(--p3r-blue-light)',
+              border: '1px solid var(--p3r-blue-light)',
+              padding: '6px 14px',
+              fontSize: '0.75rem',
+              fontFamily: 'var(--font-p3r)',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              boxShadow: '0 0 8px rgba(0, 163, 224, 0.2)',
+              transition: 'all 0.2s ease',
+              outline: 'none'
+            }}
+            onMouseEnter={playHoverSound}
+          >
+            📋 Resources
+          </button>
           <HeaderClock />
           <SystemStatusWidget />
         </div>
       </header>
 
-      {!isLocating && (
-        <main>
-          <section className="widgets-container">
-            <div className="widgets-grid">
-              {activeWidgets.map((widgetId, index) => (
-                <div 
-                  key={widgetId} 
-                  draggable 
-                  onDragStart={(e) => handleDragStart(e, index)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => handleDrop(e, index)}
-                  className={`draggable-wrapper ${widgetId === 'anime' ? 'full-width' : ''}`}
-                  onMouseEnter={playHoverSound}
-                >
-                  {widgetId === 'weather' && <WeatherWidget location={location} isCollapsed={collapsedWidgets['weather']} onToggleCollapse={() => toggleCollapse('weather')} onRemove={() => toggleWidgetActive('weather')} />}
-                  {widgetId === 'anime' && <AnimeTrackerWidget isCollapsed={collapsedWidgets['anime']} onToggleCollapse={() => toggleCollapse('anime')} onRemove={() => toggleWidgetActive('anime')} />}
-                  {widgetId === 'bio' && <BioHazardWidget location={location} isCollapsed={collapsedWidgets['bio']} onToggleCollapse={() => toggleCollapse('bio')} onRemove={() => toggleWidgetActive('bio')} />}
-                  {widgetId === 'solar' && <SolarWeatherWidget isCollapsed={collapsedWidgets['solar']} onToggleCollapse={() => toggleCollapse('solar')} onRemove={() => toggleWidgetActive('solar')} />}
-                  {widgetId === 'launch' && <LaunchTrackerWidget isCollapsed={collapsedWidgets['launch']} onToggleCollapse={() => toggleCollapse('launch')} onRemove={() => toggleWidgetActive('launch')} />}
-                  {widgetId === 'cyber' && <CyberPulseWidget isCollapsed={collapsedWidgets['cyber']} onToggleCollapse={() => toggleCollapse('cyber')} onRemove={() => toggleWidgetActive('cyber')} />}
-                  {widgetId === 'threats' && <ThreatMonitorWidget isCollapsed={collapsedWidgets['threats']} onToggleCollapse={() => toggleCollapse('threats')} onRemove={() => toggleWidgetActive('threats')} />}
-                  {widgetId === 'intel' && <IntelWidget isCollapsed={collapsedWidgets['intel']} onToggleCollapse={() => toggleCollapse('intel')} onRemove={() => toggleWidgetActive('intel')} />}
-                </div>
-              ))}
-            </div>
-          </section>
-          <NewsFeed countryCode={countryCode} onNewsUpdate={handleNewsUpdate} searchTrigger={newsSearchTrigger} />
-        </main>
-      )}
+      <main>
+        <section className="widgets-container">
+          <div className="widgets-grid">
+            {activeWidgets.map((widgetId, index) => (
+              <div 
+                key={widgetId} 
+                draggable 
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => handleDrop(e, index)}
+                className={`draggable-wrapper ${widgetId === 'anime' ? 'full-width' : ''}`}
+                onMouseEnter={playHoverSound}
+              >
+                {widgetId === 'weather' && <WeatherWidget location={location} isCollapsed={collapsedWidgets['weather']} onToggleCollapse={() => toggleCollapse('weather')} onRemove={() => toggleWidgetActive('weather')} />}
+                {widgetId === 'anime' && <AnimeTrackerWidget isCollapsed={collapsedWidgets['anime']} onToggleCollapse={() => toggleCollapse('anime')} onRemove={() => toggleWidgetActive('anime')} />}
+                {widgetId === 'bio' && <BioHazardWidget location={location} isCollapsed={collapsedWidgets['bio']} onToggleCollapse={() => toggleCollapse('bio')} onRemove={() => toggleWidgetActive('bio')} />}
+                {widgetId === 'solar' && <SolarWeatherWidget isCollapsed={collapsedWidgets['solar']} onToggleCollapse={() => toggleCollapse('solar')} onRemove={() => toggleWidgetActive('solar')} />}
+                {widgetId === 'launch' && <CosmicMonitorWidget isCollapsed={collapsedWidgets['launch']} onToggleCollapse={() => toggleCollapse('launch')} onRemove={() => toggleWidgetActive('launch')} />}
+                {widgetId === 'cyber' && <CyberPulseWidget isCollapsed={collapsedWidgets['cyber']} onToggleCollapse={() => toggleCollapse('cyber')} onRemove={() => toggleWidgetActive('cyber')} />}
+                {widgetId === 'threats' && <ThreatMonitorWidget isCollapsed={collapsedWidgets['threats']} onToggleCollapse={() => toggleCollapse('threats')} onRemove={() => toggleWidgetActive('threats')} />}
+                {widgetId === 'intel' && <IntelWidget isCollapsed={collapsedWidgets['intel']} onToggleCollapse={() => toggleCollapse('intel')} onRemove={() => toggleWidgetActive('intel')} />}
+                {widgetId === 'morse' && <MorseWidget isCollapsed={collapsedWidgets['morse']} onToggleCollapse={() => toggleCollapse('morse')} onRemove={() => toggleWidgetActive('morse')} />}
+                {widgetId === 'language' && <LanguageWidget isCollapsed={collapsedWidgets['language']} onToggleCollapse={() => toggleCollapse('language')} onRemove={() => toggleWidgetActive('language')} />}
+              </div>
+            ))}
+          </div>
+        </section>
+        <NewsFeed countryCode={countryCode} onNewsUpdate={handleNewsUpdate} searchTrigger={newsSearchTrigger} />
+      </main>
 
       {showBackToTop && (
           <button className="back-to-top-button" onClick={scrollToTop} onMouseEnter={playHoverSound}>
@@ -383,13 +525,6 @@ const App: React.FC = () => {
             </div>
 
             <div className="settings-section">
-              <h4 className="settings-section-title">Audio Feedback</h4>
-              <button className={`sound-toggle ${soundOn ? 'active' : ''}`} onClick={handleSoundToggle} onMouseEnter={playHoverSound}>
-                {soundOn ? 'SOUND: ON' : 'SOUND: OFF'}
-              </button>
-            </div>
-
-            <div className="settings-section">
               <h4 className="settings-section-title">UI Color Protocol</h4>
               <div className="theme-grid">
                 {THEMES.map(theme => (
@@ -413,6 +548,7 @@ const App: React.FC = () => {
       </button>
 
       <AITerminalWidget isOpen={showAI} onClose={() => setShowAI(false)} contextData={`Top Headlines: ${newsContext}.`} onCommand={handleTerminalCommand} />
+      <DocModal isOpen={showDocModal} onClose={() => setShowDocModal(false)} />
     </div>
     </>
   );
