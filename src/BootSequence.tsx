@@ -37,24 +37,28 @@ const BootSequence: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       fontFamily: '"Impact", sans-serif'
     }}>
       <div style={{ 
-        fontSize: '4rem', 
+        fontSize: 'calc(1.8rem + 3vw)', 
         marginBottom: '40px', 
         textShadow: '0 0 20px rgba(0, 163, 224, 0.8)',
-        letterSpacing: '5px'
+        letterSpacing: '5px',
+        textAlign: 'center'
       }}>
         LOADING...
       </div>
       
       <div className="boot-terminal" style={{ 
-        width: '400px', 
+        width: '100%',
+        maxWidth: '400px', 
         height: 'auto', 
         border: 'none', 
         background: 'transparent',
         textAlign: 'center',
         fontFamily: '"Helvetica Neue", sans-serif',
-        fontSize: '1rem',
+        fontSize: '0.9rem',
         letterSpacing: '2px',
-        color: 'var(--p3r-blue-light)'
+        color: 'var(--p3r-blue-light)',
+        padding: '0 20px',
+        boxSizing: 'border-box'
       }}>
         {lines.map((line, i) => (
           <div key={i} className="boot-line" style={{ marginBottom: '8px', opacity: 0.8 }}>{line}</div>
@@ -62,7 +66,8 @@ const BootSequence: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       </div>
 
       <div style={{ 
-        width: '300px', 
+        width: '80%', 
+        maxWidth: '300px', 
         height: '4px', 
         background: 'rgba(255,255,255,0.1)', 
         marginTop: '20px',

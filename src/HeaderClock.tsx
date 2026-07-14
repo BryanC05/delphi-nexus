@@ -52,15 +52,16 @@ const HeaderClock: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', gap: '16px', alignItems: 'center', background: 'var(--p3r-blue-dark)', padding: '10px 20px', borderLeft: '4px solid var(--p3r-blue-light)', boxShadow: '4px 4px 0px rgba(0,0,0,0.5)' }}>
+    <div className="header-clock" style={{ display: 'flex', gap: '16px', alignItems: 'center', background: 'var(--p3r-blue-dark)', padding: '10px 20px', borderLeft: '4px solid var(--p3r-blue-light)', boxShadow: '4px 4px 0px rgba(0,0,0,0.5)' }}>
       {isEditing ? (
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div className="header-clock-cities editing" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           {cities.map((tz, idx) => (
             <select 
               key={idx} 
               value={tz} 
               onChange={e => handleCityChange(idx, e.target.value)} 
               onMouseEnter={playHoverSound}
+              className="header-clock-city-select"
               style={{
                 background: 'rgba(0,0,0,0.3)',
                 color: '#fff',
@@ -76,9 +77,9 @@ const HeaderClock: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+        <div className="header-clock-cities" style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
           {cities.map((tz, idx) => (
-            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div key={idx} className="header-clock-city" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
               <span style={{ color: 'var(--p3r-cyan)', fontSize: '0.65rem', fontFamily: 'var(--font-p3r)', textTransform: 'uppercase', letterSpacing: '1px' }}>{formatName(tz)}</span>
               <span style={{ color: '#fff', fontSize: '1.1rem', fontFamily: 'var(--font-tech)', fontWeight: 'bold' }}>{getTime(tz)}</span>
             </div>

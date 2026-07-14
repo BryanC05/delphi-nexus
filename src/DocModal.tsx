@@ -93,6 +93,7 @@ const DocModal: React.FC<DocModalProps> = ({ isOpen, onClose }) => {
   return (
     <div 
       onClick={onClose}
+      className="doc-modal-overlay"
       style={{
         position: 'fixed',
         top: 0,
@@ -111,6 +112,7 @@ const DocModal: React.FC<DocModalProps> = ({ isOpen, onClose }) => {
     >
       <div 
         onClick={e => e.stopPropagation()}
+        className="doc-modal-container"
         style={{
           background: 'rgba(0, 30, 60, 0.95)',
           border: '2px solid var(--accent-color)',
@@ -125,14 +127,17 @@ const DocModal: React.FC<DocModalProps> = ({ isOpen, onClose }) => {
         }}
       >
         {/* Header */}
-        <div style={{
-          padding: '16px 24px',
-          borderBottom: '1px solid var(--accent-color)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: 'rgba(0, 163, 224, 0.05)'
-        }}>
+        <div 
+          className="doc-modal-header"
+          style={{
+            padding: '16px 24px',
+            borderBottom: '1px solid var(--accent-color)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'rgba(0, 163, 224, 0.05)'
+          }}
+        >
           <div>
             <h2 style={{ margin: 0, fontSize: '1.4rem', fontFamily: 'var(--font-p3r)', color: '#fff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '10px' }}>
               📋 SYSTEM RESOURCES DIRECTORY
@@ -167,14 +172,17 @@ const DocModal: React.FC<DocModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Content Body */}
-        <div style={{
-          padding: '24px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px',
-          fontFamily: 'var(--font-tech)'
-        }}>
+        <div 
+          className="doc-modal-body"
+          style={{
+            padding: '24px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+            fontFamily: 'var(--font-tech)'
+          }}
+        >
           {DOC_SECTIONS.map((sec, idx) => (
             <div key={idx} style={{
               borderBottom: idx === DOC_SECTIONS.length - 1 ? 'none' : '1px dashed rgba(0, 163, 224, 0.15)',

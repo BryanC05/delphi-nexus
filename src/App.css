@@ -1351,9 +1351,14 @@ html, * {
    MOBILE RESPONSIVENESS OVERRIDES
    ========================================================================== */
 @media (max-width: 768px) {
+  /* Scale down base layout font sizing */
+  html, body {
+    font-size: 13px !important;
+  }
+
   /* Dashboard layout padding */
   .dashboard {
-    padding: 16px !important;
+    padding: 10px !important;
   }
 
   /* Header mobile adjustments */
@@ -1361,55 +1366,295 @@ html, * {
     flex-direction: column !important;
     align-items: center !important;
     text-align: center !important;
-    gap: 16px !important;
-    padding: 20px 16px !important;
-    margin-bottom: 24px !important;
-    border-left-width: 6px !important;
+    gap: 12px !important;
+    padding: 12px 14px !important;
+    margin-bottom: 16px !important;
+    border-left-width: 4px !important;
   }
 
   .header h1 {
-    font-size: 1.6rem !important;
+    font-size: 1.25rem !important;
   }
 
+  /* 2x2 Grid Layout for mobile buttons & widgets */
   .header > div:last-child {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 12px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
     width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .header > div:last-child button {
-    flex-grow: 1 !important;
-    text-align: center !important;
-    padding: 8px 12px !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 6px !important;
+    font-size: 0.65rem !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+  }
+
+  /* Responsive Timezones (Only show Local) */
+  .header-clock {
+    width: 100% !important;
+    padding: 4px 8px !important;
+    gap: 4px !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .header-clock-cities {
+    gap: 6px !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .header-clock-city:not(:first-child) {
+    display: none !important;
+  }
+
+  .header-clock-city span:last-child {
+    font-size: 0.95rem !important;
+  }
+
+  .header-clock-cities.editing {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 6px !important;
+  }
+  
+  .header-clock-city-select {
+    width: 100% !important;
     font-size: 0.7rem !important;
+    padding: 2px 4px !important;
+  }
+
+  /* Responsive stability widget (Hide graph) */
+  .system-status-widget {
+    width: 100% !important;
+    padding: 4px 8px !important;
+    gap: 4px !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .system-status-chart {
+    display: none !important;
+  }
+
+  .system-status-label {
+    font-size: 0.7rem !important;
+    letter-spacing: 0px !important;
+  }
+
+  .system-status-ping {
+    font-size: 0.9rem !important;
+    min-width: auto !important;
+    text-align: center !important;
+  }
+
+  /* Floating Action Buttons */
+  .settings-btn {
+    bottom: 12px !important;
+    left: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 1rem !important;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.5) !important;
+  }
+
+  .ai-toggle-btn {
+    bottom: 56px !important;
+    left: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 0.9rem !important;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.5) !important;
+  }
+
+  .back-to-top-button {
+    bottom: 12px !important;
+    right: 12px !important;
+    padding: 6px 10px !important;
+    font-size: 0.65rem !important;
+    letter-spacing: 1px !important;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.5) !important;
   }
 
   /* Grid & Card layout gaps */
   .widgets-grid {
-    gap: 16px !important;
+    gap: 12px !important;
   }
 
   .widget {
-    padding: 16px !important;
+    padding: 12px !important;
   }
 
   .widget h3 {
-    font-size: 1.2rem !important;
-    margin-bottom: 16px !important;
+    font-size: 0.95rem !important;
+    margin-bottom: 8px !important;
+    padding-bottom: 6px !important;
+  }
+
+  .widget-content {
+    font-size: 0.8rem !important;
+    gap: 10px !important;
+  }
+
+  .widget form {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  
+  .widget form button,
+  .widget form input,
+  .widget form select {
+    flex-grow: 1 !important;
+    font-size: 0.75rem !important;
+    padding: 6px 10px !important;
   }
 
   /* Config overlay panel settings */
   .settings-panel {
-    padding: 20px !important;
-    border-left-width: 8px !important;
-    box-shadow: 6px 6px 0px rgba(0, 163, 224, 0.3), 12px 12px 0px rgba(0, 0, 0, 0.5) !important;
+    width: 85% !important;
+    max-width: 330px !important;
+    max-height: 75dvh !important;
+    padding: 16px !important;
+    border-left-width: 6px !important;
+    box-shadow: 4px 4px 0px rgba(0, 163, 224, 0.3), 8px 8px 0px rgba(0, 0, 0, 0.5) !important;
+    overflow-y: auto !important;
   }
 
   .settings-title {
-    font-size: 1.4rem !important;
+    font-size: 1.15rem !important;
+  }
+
+  .settings-section-title {
+    font-size: 0.95rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  .settings-checkbox-label {
+    font-size: 0.8rem !important;
+    padding: 6px 10px !important;
+    gap: 6px !important;
+  }
+
+  .settings-logout-btn {
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .theme-grid {
+    gap: 10px !important;
+  }
+
+  .theme-swatch {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* DocModal styling updates */
+  .doc-modal-overlay {
+    padding: 10px !important;
+  }
+
+  .doc-modal-container {
+    max-height: 95vh !important;
+  }
+
+  .doc-modal-body {
+    padding: 12px !important;
+    gap: 12px !important;
+  }
+
+  .doc-modal-body h3 {
+    font-size: 0.95rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .doc-modal-body p {
+    font-size: 0.8rem !important;
+  }
+
+  .doc-modal-header {
+    padding: 10px 12px !important;
+  }
+
+  .doc-modal-header h2 {
+    font-size: 0.9rem !important;
+  }
+
+  /* News Feed adjustments */
+  .news-header {
+    margin-bottom: 12px !important;
+  }
+  
+  .news-controls {
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  
+  .news-controls .custom-dropdown {
+    width: 100% !important;
+  }
+  
+  .news-controls .custom-dropdown-trigger {
+    width: 100% !important;
+    font-size: 0.8rem !important;
+    padding: 6px 12px !important;
+  }
+  
+  .news-search-wrapper {
+    width: 100% !important;
+    gap: 6px !important;
+  }
+  
+  .news-search-input {
+    flex-grow: 1 !important;
+    font-size: 0.8rem !important;
+    padding: 6px 12px !important;
+  }
+  
+  .news-search-button {
+    font-size: 0.8rem !important;
+    padding: 6px 12px !important;
+  }
+  
+  .news-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)) !important;
+    gap: 12px !important;
+  }
+  
+  .news-card {
+    box-shadow: none !important;
+  }
+
+  .news-image-container {
+    height: 140px !important;
+  }
+  
+  .news-content {
+    padding: 12px !important;
+  }
+  
+  .news-title {
+    font-size: 0.95rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .news-desc {
+    font-size: 0.8rem !important;
+  }
+
+  .news-meta {
+    font-size: 0.75rem !important;
+    padding-top: 8px !important;
   }
 }
 
@@ -1419,7 +1664,9 @@ html, * {
     width: 100% !important;
     right: -100% !important;
     border-left: none !important;
-    border-top: 10px solid var(--p3r-blue-light) !important;
+    border-top: 8px solid var(--p3r-blue-light) !important;
+    height: 100dvh !important;
+    padding: 16px !important;
   }
   
   .ai-sidebar.open {
@@ -1427,8 +1674,22 @@ html, * {
   }
 
   .ai-sidebar-header {
-    margin-bottom: 16px !important;
-    padding-bottom: 8px !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 6px !important;
+  }
+
+  .ai-sidebar-title-container h3 {
+    font-size: 1.25rem !important;
+  }
+
+  .ai-input-form {
+    padding: 6px 10px !important;
+    margin-top: 10px !important;
+    gap: 8px !important;
+  }
+
+  .ai-input-form input {
+    font-size: 0.85rem !important;
   }
 }
 

@@ -45,6 +45,15 @@ const App: React.FC = () => {
   const [countryCode, setCountryCode] = useState<string>('us'); // default fallback
   const [isLocating, setIsLocating] = useState<boolean>(true);
   const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(() => window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Settings & Theme State
   const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -454,10 +463,10 @@ const App: React.FC = () => {
             {activeWidgets.map((widgetId, index) => (
               <div 
                 key={widgetId} 
-                draggable 
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => handleDrop(e, index)}
+                draggable={!isMobile} 
+                onDragStart={isMobile ? undefined : (e) => handleDragStart(e, index)}
+                onDragOver={isMobile ? undefined : (e) => e.preventDefault()}
+                onDrop={isMobile ? undefined : (e) => handleDrop(e, index)}
                 className={`draggable-wrapper ${widgetId === 'anime' ? 'full-width' : ''}`}
                 onMouseEnter={playHoverSound}
               >
