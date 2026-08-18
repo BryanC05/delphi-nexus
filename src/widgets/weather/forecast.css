@@ -1,0 +1,40 @@
+.forecast-container {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--card-border);
+}
+
+.forecast-title {
+  font-family: var(--font-p3r);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.forecast-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.forecast-card {
+  min-width: 90px;
+  background: rgba(0, 45, 98, 0.2);
+  border: 1px solid rgba(0, 163, 224, 0.2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.forecast-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.forecast-temp {
+  font-weight: bold;
+  color: var(--accent-color);
+}

@@ -1,78 +1,81 @@
 # Delphi Nexus
 
-Delphi Nexus is a futuristic, cyberpunk-themed monitoring dashboard designed for real-time intelligence gathering. It provides a centralized hub for tracking everything from global news and cybersecurity threats to aerospace launches and solar weather.
+Delphi Nexus is a cyberpunk-themed monitoring dashboard for real-time intelligence: global news, weather, cybersecurity threats, space launches, solar weather, anime releases, and an embedded AI terminal.
 
-## 🚀 Features & Widgets
+## Features
 
-The dashboard consists of several specialized widgets, each focused on a specific data stream:
+Active dashboard modules (configurable in Settings):
 
-*   **AI Terminal**: Interactive LLM interface for rapid querying and analysis.
-*   **Bio Hazard**: Real-time air quality and pollution monitoring.
-*   **Crypto Tracker**: Live cryptocurrency price updates and market trends.
-*   **Cyber Pulse**: High-speed tech news feed from Hacker News.
-*   **Exchange**: Currency conversion and historical forex data.
-*   **Intel**: Daily space intelligence (NASA APOD) and obscure facts.
-*   **Launch Tracker**: Real-time tracking of upcoming rocket launches.
-*   **Media Radar**: Monitoring for upcoming anime, movies, and TV show releases.
-*   **News Feed**: Aggregated global headlines from multiple major news sources.
-*   **Radar**: Geographic point-of-interest search and mapping.
-*   **Solar Weather**: Tracking planetary K-index and solar activity.
-*   **Threat Monitor**: Real-time feed of the latest cybersecurity vulnerabilities (CVEs).
-*   **Weather**: Hyper-local weather conditions and 5-day forecasts.
-*   **World Clock**: Global time zone monitoring.
+| Module | Description |
+|--------|-------------|
+| **Weather** | Hyper-local conditions and 12-hour forecast |
+| **Anime Tracker** | Upcoming seasonal anime (Jikan / MyAnimeList) |
+| **Bio-Hazard Monitor** | Air quality via OpenWeatherMap |
+| **Solar Weather** | Planetary K-index and NOAA space weather |
+| **Cosmic Monitor** | Upcoming rocket launches |
+| **Cyber Pulse** | Hacker News tech feed + DNS diagnostics |
+| **Zero-Day Monitor** | Latest CVEs + sanctions search |
+| **Daily Intel** | Facts, glyph decoder, GitHub/Discord dossier, knowledge archive |
+| **Morse Code Station** | Web Audio Morse synthesizer and decoder |
+| **Linguistic Dialects** | Translation + cultural vocabulary |
+| **News Feed** | Aggregated headlines (NewsAPI / Mediastack) |
+| **AI Terminal** | Groq-powered chat with dashboard context |
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-*   **Frontend**: [React](https://reactjs.org/) with [TypeScript](https://www.typescriptlang.org/)
-*   **Styling**: Custom CSS (Futuristic/Cyberpunk theme)
-*   **Charts**: [Recharts](https://recharts.org/)
-*   **Maps**: [Leaflet](https://leafletjs.com/) & [React-Leaflet](https://react-leaflet.js.org/)
-*   **Backend Services**: [Firebase](https://firebase.google.com/) (Auth, Firestore, Analytics)
-*   **Data Fetching**: [Axios](https://axios-http.com/)
+- **Frontend:** React 18, TypeScript, Vite
+- **Styling:** Custom CSS (P3R / classic themes)
+- **Charts:** Recharts
+- **Backend:** Firebase Auth + Firestore (optional layout sync)
+- **HTTP:** Axios
 
-## 📡 APIs Integrated
+## Setup
 
-Delphi Nexus aggregates data from a wide array of professional APIs:
+```bash
+git clone <your-repo-url>
+cd delphi-nexus
+npm install
+cp .env.example .env
+# Add your API keys to .env
+npm run dev
+```
 
-| Category | API Source |
-| :--- | :--- |
-| **Artificial Intelligence** | [Groq (OpenAI Compatible)](https://groq.com/) |
-| **Weather & Environment** | [OpenWeatherMap](https://openweathermap.org/) |
-| **Finance & Crypto** | [CoinGecko](https://www.coingecko.com/), [Frankfurter](https://www.frankfurter.app/), [Polygon.io](https://polygon.io/) |
-| **News** | [Hacker News](https://news.ycombinator.com/), [NewsAPI](https://newsapi.org/), [Mediastack](https://mediastack.com/) |
-| **Space & Aerospace** | [NASA](https://api.nasa.gov/), [TheSpaceDevs](https://thespacedevs.com/llapi), [NOAA](https://www.swpc.noaa.gov/) |
-| **Entertainment** | [TMDB](https://www.themoviedb.org/), [Jikan (MyAnimeList)](https://jikan.moe/) |
-| **Geospatial** | [Overpass API (OSM)](https://wiki.openstreetmap.org/wiki/Overpass_API), [BigDataCloud](https://www.bigdatacloud.com/) |
-| **Cybersecurity** | [NIST NVD (CVE)](https://nvd.nist.gov/developers/v2) |
+Open [http://localhost:5173](http://localhost:5173).
 
-## ⚙️ Setup & Installation
+### Environment variables
 
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/your-repo/delphi-nexus.git
-    cd delphi-nexus
-    ```
+| Variable | Used by |
+|----------|---------|
+| `VITE_OPENWEATHER_API_KEY` | Weather, Bio-Hazard |
+| `VITE_GROQ_API_KEY` | AI Terminal |
+| `VITE_NEWSAPI_API_KEY` | News Feed (global) |
+| `VITE_MEDIASTACK_API_KEY` | News Feed (alternate) |
 
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
+In production on Vercel, NewsAPI and Mediastack requests are proxied via `vercel.json` rewrites.
 
-3.  **Environment Variables**:
-    Create a `.env` file in the root directory and add your API keys:
-    ```env
-    REACT_APP_OPENWEATHER_API_KEY=your_key
-    REACT_APP_GROQ_API_KEY=your_key
-    REACT_APP_TMDB_API_KEY=your_key
-    REACT_APP_NEWS_API_KEY=your_key
-    # Add other API keys as required by widgets
-    ```
+## Scripts
 
-4.  **Start the development server**:
-    ```bash
-    npm start
-    ```
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Vite dev server |
+| `npm run build` | Production build → `dist/` |
+| `npm run preview` | Preview production build |
+| `npm run lint` | ESLint |
+| `npm run format` | Prettier |
 
-## 📄 License
+## Project structure
 
-This project is licensed under the ISC License.
+```
+src/
+  app/           App shell
+  components/    Shared UI (WidgetShell, NewsFeed, modals, …)
+  config/        Themes + widget registry
+  hooks/         Geolocation, layout, theme
+  widgets/       Lazy-loaded dashboard modules
+  services/      Firebase
+  shared/        Types, sound utils
+```
+
+## License
+
+ISC
