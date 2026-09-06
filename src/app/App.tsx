@@ -143,23 +143,34 @@ export default function App() {
   }
 
   return (
-    <div className="dashboard">
-      <header className="header">
-        <div>
-          <h1>Delphi Nexus</h1>
-          {isLocating && <p style={{ color: '#fff', margin: '8px 0 0', opacity: 0.7 }}>LOCATING GEOGRAPHIC COORDINATES...</p>}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button type="button" onClick={() => { playClickSound(); setUiMode(uiMode === 'p3r' ? 'classic' : 'p3r'); }} onMouseEnter={playHoverSound} aria-label="Toggle UI style" style={{ background: 'transparent', color: 'var(--accent-color)', border: '1px solid var(--accent-color)', padding: '6px 14px', cursor: 'pointer' }}>
-            Style: {uiMode === 'p3r' ? 'Stylized P3R' : 'Classic Delphi'}
-          </button>
-          <button type="button" onClick={() => { playClickSound(); setShowDocModal(true); }} onMouseEnter={playHoverSound} aria-label="Open resources documentation">
-            Resources
+    <div className="dashboard r1999-dashboard">
+      <div className="header-wrapper">
+        <header className="header r1999-header">
+          <div className="r1999-header-brand">
+            <div className="r1999-brand-sub">ST. PAVLOV FOUNDATION // TEMPORAL DOSSIER</div>
+            <h1 className="r1999-brand-title">
+              <span className="r1999-brand-mark">◈</span> DELPHI NEXUS
+            </h1>
+            {isLocating && <p className="r1999-locating-msg">CALIBRATING SPATIAL COORDINATES...</p>}
+          </div>
+          <div className="r1999-header-controls">
+          <button
+            type="button"
+            className="r1999-btn"
+            onClick={() => {
+              playClickSound();
+              setShowDocModal(true);
+            }}
+            onMouseEnter={playHoverSound}
+            aria-label="Open resources documentation"
+          >
+            <span className="r1999-btn-ornament">◇</span> ARCHIVE
           </button>
           <HeaderClock />
           <SystemStatusWidget />
         </div>
       </header>
+    </div>
 
       <main>
         <section className="widgets-container">

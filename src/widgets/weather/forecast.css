@@ -1,12 +1,13 @@
 .forecast-container {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px dashed var(--card-border);
+  border-top: 1px dashed var(--brass-border);
 }
 
 .forecast-title {
-  font-family: var(--font-p3r);
-  font-size: 0.85rem;
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  letter-spacing: 1.5px;
   color: var(--text-muted);
   margin-bottom: 12px;
   text-transform: uppercase;
@@ -20,21 +21,30 @@
 
 .forecast-card {
   min-width: 90px;
-  background: rgba(0, 45, 98, 0.2);
-  border: 1px solid rgba(0, 163, 224, 0.2);
+  background: rgba(13, 16, 23, 0.7);
+  border: 1px solid var(--brass-border);
   padding: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.forecast-card:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-2px);
 }
 
 .forecast-time {
   font-size: 0.7rem;
   color: var(--text-muted);
+  font-family: var(--font-mono);
 }
 
 .forecast-temp {
   font-weight: bold;
-  color: var(--accent-color);
+  color: var(--gold-light);
+  font-family: var(--font-mono);
 }

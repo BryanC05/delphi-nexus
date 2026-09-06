@@ -6,80 +6,51 @@ const BootSequence: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
 
   useEffect(() => {
     const sequence = [
-      "CONNECTING TO DATA CHANNELS...",
-      "SUMMONING DATA STREAMS...",
-      "CALIBRATING SYSTEM INTERFACE...",
-      "SYNCHRONIZING SYSTEM TIME...",
-      "DATA NETWORK ONLINE."
+      'CALIBRATING CHRONOLOGICAL REELS...',
+      'MONITORING TEMPORAL RESONANCE TELEMETRY...',
+      'DECRYPTING CLASSIFIED DOSSIER ARCHIVES...',
+      'ALIGNING CELESTIAL AND GEOGRAPHIC MATRIX...',
+      'TEMPORAL REEL SYNCHRONIZED // SYSTEM STABLE.',
     ];
 
     let delay = 0;
     sequence.forEach((line, index) => {
-      delay += 400 + Math.random() * 300;
+      delay += 380 + Math.random() * 260;
       setTimeout(() => {
-        setLines(prev => [...prev, line]);
+        setLines((prev) => [...prev, line]);
         setProgress(((index + 1) / sequence.length) * 100);
         if (index === sequence.length - 1) {
-          setTimeout(onComplete, 1200);
+          setTimeout(onComplete, 1100);
         }
       }, delay);
     });
   }, [onComplete]);
 
   return (
-    <div className="boot-sequence" style={{ 
-      background: 'radial-gradient(circle, #002D62 0%, #000 100%)', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      justifyContent: 'center', 
-      alignItems: 'center',
-      color: '#fff',
-      fontFamily: '"Impact", sans-serif'
-    }}>
-      <div style={{ 
-        fontSize: 'calc(1.8rem + 3vw)', 
-        marginBottom: '40px', 
-        textShadow: '0 0 20px rgba(0, 163, 224, 0.8)',
-        letterSpacing: '5px',
-        textAlign: 'center'
-      }}>
-        LOADING...
+    <div className="boot-sequence r1999-boot">
+      <div className="r1999-boot-emblem">
+        <div className="r1999-boot-ring" />
+        <div className="r1999-boot-inner-ring" />
+        <span className="r1999-boot-year" aria-hidden="true">◈</span>
       </div>
-      
-      <div className="boot-terminal" style={{ 
-        width: '100%',
-        maxWidth: '400px', 
-        height: 'auto', 
-        border: 'none', 
-        background: 'transparent',
-        textAlign: 'center',
-        fontFamily: '"Helvetica Neue", sans-serif',
-        fontSize: '0.9rem',
-        letterSpacing: '2px',
-        color: 'var(--p3r-blue-light)',
-        padding: '0 20px',
-        boxSizing: 'border-box'
-      }}>
+
+      <div className="r1999-boot-subtitle">CLASSIFIED ARCHIVAL SYSTEM // CHRONO-REEL</div>
+      <h1 className="r1999-boot-title">DELPHI // NEXUS</h1>
+
+      <div className="boot-terminal r1999-boot-terminal">
         {lines.map((line, i) => (
-          <div key={i} className="boot-line" style={{ marginBottom: '8px', opacity: 0.8 }}>{line}</div>
+          <div key={i} className="r1999-boot-line">
+            <span className="r1999-bullet">◇</span> {line}
+          </div>
         ))}
       </div>
 
-      <div style={{ 
-        width: '80%', 
-        maxWidth: '300px', 
-        height: '4px', 
-        background: 'rgba(255,255,255,0.1)', 
-        marginTop: '20px',
-        position: 'relative'
-      }}>
-        <div style={{ 
-          width: `${progress}%`, 
-          height: '100%', 
-          background: 'var(--p3r-blue-light)',
-          transition: 'width 0.3s ease',
-          boxShadow: '0 0 10px var(--p3r-blue-light)'
-        }} />
+      <div className="r1999-boot-bar-wrap">
+        <div className="r1999-boot-bar" style={{ width: `${progress}%` }} />
+      </div>
+
+      <div className="r1999-boot-footer">
+        TEMPORAL TELEMETRY INTERFACE &bull; ARCHIVE INDEX 19.99
       </div>
     </div>
   );

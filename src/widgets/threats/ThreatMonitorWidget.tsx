@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import WidgetShell from '@/components/WidgetShell';
 
 type Threat = {
   id: string;
@@ -95,20 +96,14 @@ const ThreatMonitorWidget: React.FC<ThreatMonitorProps> = ({ isCollapsed, onTogg
   };
 
   return (
-    <div className="widget threat-widget" style={isCollapsed ? { padding: '24px', overflow: 'hidden' } : { padding: '24px', overflow: 'hidden' }}>
-      <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--card-border)', paddingBottom: isCollapsed ? 0 : '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ color: '#fc8181', textShadow: '0 0 8px rgba(252, 129, 129, 0.4)', fontFamily: 'var(--font-p3r)' }}>ZERO-DAY MONITOR</span>
-          {!cvesLoading && activeTab === 'cves' && <span className="api-indicator">API ONLINE</span>}
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
-          <button className="remove-btn" onClick={onRemove}>×</button>
-        </div>
-      </h3>
-
-      {!isCollapsed && (
-        <div className="widget-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <WidgetShell
+      title="ZERO-DAY MONITOR"
+      status={cvesLoading ? 'loading' : 'online'}
+      isCollapsed={isCollapsed}
+      onToggleCollapse={onToggleCollapse}
+      onRemove={onRemove}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Tab selectors */}
           <div style={{ display: 'flex', borderBottom: '1px solid rgba(0, 163, 224, 0.2)', paddingBottom: '8px', gap: '8px' }}>
             <button 
@@ -271,8 +266,7 @@ const ThreatMonitorWidget: React.FC<ThreatMonitorProps> = ({ isCollapsed, onTogg
             </div>
           )}
         </div>
-      )}
-    </div>
+    </WidgetShell>
   );
 };
 

@@ -31,21 +31,53 @@ function getAudioContext(): AudioContext | null {
   }
 }
 
-function playTone(frequency: number, durationMs: number, volume = 0.04) {
+function playVintageClick(freq = 880, duration = 0.035, volume = 0.02) {
   const ctx = getAudioContext();
   if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-  const oscillator = ctx.createOscillator();
-  const gain = ctx.createGain();
-  oscillator.type = 'sine';
-  oscillator.frequency.value = frequency;
-  gain.gain.value = volume;
-  oscillator.connect(gain);
-  gain.connect(ctx.destination);
-  oscillator.start();
-  oscillator.stop(ctx.currentTime + durationMs / 1000);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.4, now + duration);
+
+    gain.gain.setValueAtTime(volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + duration);
+  } catch {
+    // Ignore audio error
+  }
 }
 
-export const playHoverSound = () => playTone(520, 40, 0.025);
+function playBrassChime(freq = 554.37, duration = 0.14, volume = 0.035) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  try {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-export const playClickSound = () => playTone(600, 60, 0.035);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now);
+
+    gain.gain.setValueAtTime(volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + duration);
+  } catch {
+    // Ignore audio error
+  }
+}
+
+export const playHoverSound = () => playVintageClick(880, 0.03, 0.02);
+
+export const playClickSound = () => playBrassChime(587.33, 0.14, 0.035);

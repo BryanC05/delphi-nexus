@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { playHoverSound } from '@/shared/soundUtils';
+import { playClickSound, playHoverSound } from '@/shared/soundUtils';
 import type { WidgetStatus } from '@/shared/types';
 
 type WidgetShellProps = {
   title: string;
+  headerExtra?: ReactNode;
   className?: string;
   status?: WidgetStatus;
   showStatus?: boolean;
@@ -14,13 +15,14 @@ type WidgetShellProps = {
 };
 
 const statusLabel: Record<WidgetStatus, string> = {
-  online: 'ONLINE',
-  offline: 'OFFLINE',
-  loading: 'SYNCING',
+  online: 'STABLE',
+  offline: 'SEVERED',
+  loading: 'CHRONO-SYNC',
 };
 
 export default function WidgetShell({
   title,
+  headerExtra,
   className = '',
   status = 'online',
   showStatus = true,
@@ -31,60 +33,69 @@ export default function WidgetShell({
 }: WidgetShellProps) {
   return (
     <div
-      className={`widget ${className}`.trim()}
+      className={`widget r1999-dossier-card ${className}`.trim()}
       style={
         isCollapsed
-          ? { padding: '24px', overflow: 'hidden' }
-          : { padding: '24px', display: 'flex', flexDirection: 'column' }
+          ? { padding: '22px 28px', overflow: 'hidden' }
+          : { padding: '24px 28px 26px', display: 'flex', flexDirection: 'column' }
       }
     >
-      <h3
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: isCollapsed ? 0 : '16px',
-          borderBottom: isCollapsed ? 'none' : '2px solid var(--accent-color)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>{title}</span>
-          {showStatus && status !== 'loading' && (
-            <span className="api-indicator">{statusLabel[status]}</span>
-          )}
-          {showStatus && status === 'loading' && (
-            <span className="api-indicator" style={{ opacity: 0.7 }}>
-              {statusLabel.loading}
+      {/* Archival Corner Facets and Seal */}
+      <span className="r1999-corner r1999-corner-tl" aria-hidden="true" />
+      <span className="r1999-corner r1999-corner-tr" aria-hidden="true" />
+      <span className="r1999-corner r1999-corner-bl" aria-hidden="true" />
+      <span className="r1999-corner r1999-corner-br" aria-hidden="true" />
+      <span className="r1999-docket-tab" aria-hidden="true">CASE // 19</span>
+
+      <div className="r1999-card-header">
+        <div className="r1999-title-group">
+          <span className="r1999-header-diamond" aria-hidden="true">◈</span>
+          <h3 className="r1999-card-title">{title}</h3>
+          {showStatus && (
+            <span className={`r1999-status-badge status-${status}`}>
+              <span className="r1999-status-pulse" />
+              {statusLabel[status]}
             </span>
           )}
+          {headerExtra}
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+
+        <div className="r1999-card-actions">
           {onToggleCollapse && (
             <button
               type="button"
-              className="collapse-btn"
-              onClick={onToggleCollapse}
+              className="r1999-btn-icon"
+              onClick={() => {
+                playClickSound();
+                onToggleCollapse();
+              }}
               onMouseEnter={playHoverSound}
               aria-expanded={!isCollapsed}
               aria-label={isCollapsed ? `Expand ${title}` : `Collapse ${title}`}
+              title={isCollapsed ? 'Expand dossier' : 'Fold dossier'}
             >
-              {isCollapsed ? '+' : '-'}
+              {isCollapsed ? '+' : '—'}
             </button>
           )}
           {onRemove && (
             <button
               type="button"
-              className="remove-btn"
-              onClick={onRemove}
+              className="r1999-btn-icon btn-remove"
+              onClick={() => {
+                playClickSound();
+                onRemove();
+              }}
               onMouseEnter={playHoverSound}
-              aria-label={`Remove ${title} widget`}
+              aria-label={`Archive ${title} widget`}
+              title="Archive dossier"
             >
               ×
             </button>
           )}
         </div>
-      </h3>
-      {!isCollapsed && <div className="widget-content">{children}</div>}
+      </div>
+
+      {!isCollapsed && <div className="widget-content r1999-card-body">{children}</div>}
     </div>
   );
 }

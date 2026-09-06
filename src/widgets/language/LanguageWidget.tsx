@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import WidgetShell from '@/components/WidgetShell';
 
 type LanguageProps = {
   isCollapsed?: boolean;
@@ -14,6 +15,13 @@ type ForeignWord = {
   pronunciation: string;
   translation: string;
   meaning: string;
+};
+
+type LanguageProfile = {
+  family: string;
+  regions: string;
+  script: string;
+  note: string;
 };
 
 const FOREIGN_WORDS: ForeignWord[] = [
@@ -62,12 +70,58 @@ const FALLBACK_ENGLISH_WORDS = [
   'legend', 'enigma', 'summit', 'ocean', 'forest'
 ];
 
+const LANGUAGE_PROFILES: Record<string, LanguageProfile> = {
+  Japanese: {
+    family: 'Japonic',
+    regions: 'Japan · Ryukyu Islands',
+    script: 'Kanji · Hiragana · Katakana',
+    note: 'Meaning often shifts with formality, season, and the relationship between speakers.'
+  },
+  German: {
+    family: 'Indo-European · Germanic',
+    regions: 'Germany · Austria · Switzerland',
+    script: 'Latin',
+    note: 'Compound words and regional vocabulary make everyday German especially precise.'
+  },
+  French: {
+    family: 'Indo-European · Romance',
+    regions: 'France · Belgium · Switzerland · Quebec',
+    script: 'Latin',
+    note: 'The same idea can carry different social temperature depending on register and place.'
+  },
+  Spanish: {
+    family: 'Indo-European · Romance',
+    regions: 'Spain · Latin America',
+    script: 'Latin',
+    note: 'Regional vocabulary is vivid: a familiar object can have several local names.'
+  },
+  Portuguese: {
+    family: 'Indo-European · Romance',
+    regions: 'Portugal · Brazil · Lusophone Africa',
+    script: 'Latin',
+    note: 'European and Brazilian varieties differ in rhythm, vocabulary, and everyday address.'
+  },
+  Greek: {
+    family: 'Indo-European · Hellenic',
+    regions: 'Greece · Cyprus',
+    script: 'Greek',
+    note: 'Modern Greek carries layers of ancient roots while remaining richly idiomatic.'
+  },
+  Dutch: {
+    family: 'Indo-European · Germanic',
+    regions: 'Netherlands · Belgium · Suriname',
+    script: 'Latin',
+    note: 'Dutch-speaking regions share a core language but keep distinct local sounds and words.'
+  }
+};
+
 const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse, onRemove }) => {
   const [subTab, setSubTab] = useState<'archive' | 'translator'>('archive');
   
   // Archive States
   const [selectedWord, setSelectedWord] = useState<ForeignWord>(FOREIGN_WORDS[0]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [languageFilter, setLanguageFilter] = useState('ALL');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -97,12 +151,15 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
     setSelectedWord(randWord);
   };
 
+  const languages = Array.from(new Set(FOREIGN_WORDS.map(word => word.language)));
+  const normalizedSearch = searchQuery.toLowerCase();
   const filteredWords = FOREIGN_WORDS.filter(w =>
-    w.word.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    w.nativeScript.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    w.language.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    w.translation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    w.meaning.toLowerCase().includes(searchQuery.toLowerCase())
+    (languageFilter === 'ALL' || w.language === languageFilter) &&
+    (w.word.toLowerCase().includes(normalizedSearch) ||
+      w.nativeScript.toLowerCase().includes(normalizedSearch) ||
+      w.language.toLowerCase().includes(normalizedSearch) ||
+      w.translation.toLowerCase().includes(normalizedSearch) ||
+      w.meaning.toLowerCase().includes(normalizedSearch))
   );
 
   // Live Translator API call
@@ -118,8 +175,8 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
       } else {
         setTranslationError('Unable to extract translation data.');
       }
-    } catch {
-      console.error(err);
+    } catch (error) {
+      console.error('Translation request failed.', error);
       setTranslationError('Translation API request failed.');
     } finally {
       setTranslationLoading(false);
@@ -157,8 +214,8 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
       } else {
         setTranslationError('Unable to translate random word.');
       }
-    } catch {
-      console.error(err);
+    } catch (error) {
+      console.error('Random translation request failed.', error);
       setTranslationError('Translation API request failed.');
     } finally {
       setTranslationLoading(false);
@@ -166,19 +223,14 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
   };
 
   return (
-    <div className="widget" style={isCollapsed ? { padding: '24px', overflow: 'hidden' } : { padding: '24px', display: 'flex', flexDirection: 'column' }}>
-      <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--accent-color)', paddingBottom: isCollapsed ? 0 : '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>LINGUISTIC DIALECTS</span>
-          <span className="api-indicator">DB ONLINE</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
-          <button className="remove-btn" onClick={onRemove}>×</button>
-        </div>
-      </h3>
-
-      {!isCollapsed && (
+    <WidgetShell
+      title="LINGUISTIC DIALECTS"
+      status="online"
+      isCollapsed={isCollapsed}
+      onToggleCollapse={onToggleCollapse}
+      onRemove={onRemove}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid rgba(0, 163, 224, 0.15)', paddingBottom: '10px', marginBottom: '12px' }}>
           <button
             onClick={() => setSubTab('archive')}
@@ -215,9 +267,8 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
             API TRANSLATOR
           </button>
         </div>
-      )}
 
-      {!isCollapsed && subTab === 'archive' && (
+        {subTab === 'archive' && (
         <div className="widget-content" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           
           {/* Controls Bar */}
@@ -253,6 +304,32 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
                 </ul>
               )}
             </div>
+
+            <select
+              value={languageFilter}
+              onChange={(event) => {
+                const nextLanguage = event.target.value;
+                setLanguageFilter(nextLanguage);
+                if (nextLanguage !== 'ALL') {
+                  const firstMatch = FOREIGN_WORDS.find(word => word.language === nextLanguage);
+                  if (firstMatch) setSelectedWord(firstMatch);
+                }
+              }}
+              aria-label="Filter dialect archive by language"
+              style={{
+                minWidth: '130px',
+                background: '#000',
+                border: '1px solid var(--p3r-blue-light)',
+                color: '#fff',
+                padding: '8px 10px',
+                fontSize: '0.75rem',
+                fontFamily: 'var(--font-tech)',
+                outline: 'none'
+              }}
+            >
+              <option value="ALL">ALL LANGUAGES</option>
+              {languages.map(language => <option key={language} value={language}>{language.toUpperCase()}</option>)}
+            </select>
 
             <button 
               onClick={handleRandomize}
@@ -290,6 +367,35 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
             }}
           />
 
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', padding: '10px 12px', border: '1px solid rgba(0, 163, 224, 0.2)', background: 'rgba(0, 45, 98, 0.1)' }}>
+            <div>
+              <div style={{ color: 'var(--p3r-cyan)', fontSize: '0.62rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Archive Index</div>
+              <div style={{ color: '#fff', fontSize: '0.82rem', marginTop: '3px' }}>{filteredWords.length} / {FOREIGN_WORDS.length} entries</div>
+            </div>
+            <div>
+              <div style={{ color: 'var(--p3r-cyan)', fontSize: '0.62rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Language Set</div>
+              <div style={{ color: '#fff', fontSize: '0.82rem', marginTop: '3px' }}>{languages.length} language profiles</div>
+            </div>
+            <div>
+              <div style={{ color: 'var(--p3r-cyan)', fontSize: '0.62rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Active Lens</div>
+              <div style={{ color: 'var(--accent-color)', fontSize: '0.82rem', marginTop: '3px' }}>{selectedWord.language}</div>
+            </div>
+          </div>
+
+          {LANGUAGE_PROFILES[selectedWord.language] && (
+            <div style={{ padding: '12px 14px', background: 'rgba(197, 160, 89, 0.08)', borderLeft: '3px solid var(--accent-color)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', alignItems: 'baseline' }}>
+                <strong style={{ color: '#fff', fontFamily: 'var(--font-serif)', fontSize: '0.95rem' }}>{selectedWord.language} dialect profile</strong>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase' }}>{LANGUAGE_PROFILES[selectedWord.language].family}</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px', marginTop: '7px', color: 'var(--text-muted)', fontSize: '0.7rem' }}>
+                <span>REGIONS: {LANGUAGE_PROFILES[selectedWord.language].regions}</span>
+                <span>SCRIPT: {LANGUAGE_PROFILES[selectedWord.language].script}</span>
+              </div>
+              <div style={{ color: 'var(--text-main)', fontSize: '0.78rem', lineHeight: '1.45', marginTop: '7px' }}>{LANGUAGE_PROFILES[selectedWord.language].note}</div>
+            </div>
+          )}
+
           {/* Display Card */}
           <div style={{ padding: '16px', background: 'rgba(0, 45, 98, 0.15)', borderLeft: '4px solid var(--accent-color)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             
@@ -323,7 +429,7 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
         </div>
       )}
 
-      {!isCollapsed && subTab === 'translator' && (
+        {subTab === 'translator' && (
         <div className="widget-content" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           
           {/* Controls Bar */}
@@ -442,7 +548,8 @@ const LanguageWidget: React.FC<LanguageProps> = ({ isCollapsed, onToggleCollapse
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </WidgetShell>
   );
 };
 

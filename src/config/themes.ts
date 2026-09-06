@@ -13,6 +13,54 @@ export type Theme = {
 
 export const THEMES: Theme[] = [
   {
+    name: 'Storm',
+    hex: '#c5a059',
+    rgb: '197, 160, 89',
+    bgColor: '#0d0f14',
+    cardBg: 'rgba(18, 22, 31, 0.85)',
+    cardBorder: 'rgba(197, 160, 89, 0.5)',
+    textMuted: '#a8a090',
+    blueDark: '#131824',
+    blueLight: '#c5a059',
+    cyan: '#e5c57b',
+  },
+  {
+    name: 'St. Pavlov Foundation',
+    hex: '#d4af37',
+    rgb: '212, 175, 55',
+    bgColor: '#091317',
+    cardBg: 'rgba(12, 26, 32, 0.85)',
+    cardBorder: 'rgba(212, 175, 55, 0.5)',
+    textMuted: '#8ba8ad',
+    blueDark: '#0e2329',
+    blueLight: '#3ba39c',
+    cyan: '#e2cb76',
+  },
+  {
+    name: 'Manus Vindicta',
+    hex: '#e5a970',
+    rgb: '229, 169, 112',
+    bgColor: '#14090b',
+    cardBg: 'rgba(32, 12, 16, 0.85)',
+    cardBorder: 'rgba(229, 169, 112, 0.5)',
+    textMuted: '#d4a3a9',
+    blueDark: '#280e14',
+    blueLight: '#c93b48',
+    cyan: '#f4b886',
+  },
+  {
+    name: "Vertin's Suitcase",
+    hex: '#d6a75c',
+    rgb: '214, 167, 92',
+    bgColor: '#15120e',
+    cardBg: 'rgba(30, 24, 19, 0.85)',
+    cardBorder: 'rgba(214, 167, 92, 0.5)',
+    textMuted: '#bfae95',
+    blueDark: '#231c15',
+    blueLight: '#d6a75c',
+    cyan: '#edd59e',
+  },
+  {
     name: 'Delphi Blue',
     hex: '#00A3E0',
     rgb: '0, 163, 224',
@@ -74,14 +122,14 @@ export const THEMES: Theme[] = [
   },
 ];
 
-export const DEFAULT_THEME = 'Delphi Blue';
+export const DEFAULT_THEME = 'Storm';
 
 export function applyTheme(themeName: string): void {
   const theme = THEMES.find((t) => t.name === themeName) || THEMES[0];
   document.documentElement.style.setProperty('--accent-color', theme.hex);
   document.documentElement.style.setProperty(
     '--accent-glow',
-    `0 0 10px rgba(${theme.rgb}, 0.3), inset 0 0 10px rgba(${theme.rgb}, 0.05)`
+    `0 0 16px rgba(${theme.rgb}, 0.35), inset 0 0 10px rgba(${theme.rgb}, 0.08)`
   );
   document.documentElement.style.setProperty('--bg-color', theme.bgColor);
   document.documentElement.style.setProperty('--card-bg', theme.cardBg);
@@ -90,5 +138,5 @@ export function applyTheme(themeName: string): void {
   document.documentElement.style.setProperty('--p3r-blue-dark', theme.blueDark);
   document.documentElement.style.setProperty('--p3r-blue-light', theme.blueLight);
   document.documentElement.style.setProperty('--p3r-cyan', theme.cyan);
-  document.documentElement.style.setProperty('--bg-pattern-color', `rgba(${theme.rgb}, 0.05)`);
+  document.documentElement.style.setProperty('--bg-pattern-color', `rgba(${theme.rgb}, 0.06)`);
 }

@@ -2,9 +2,15 @@ import { useEffect, useState } from 'react';
 import { applyTheme, DEFAULT_THEME, THEMES } from '@/config/themes';
 
 export function useTheme() {
-  const [activeTheme, setActiveTheme] = useState(
-    () => localStorage.getItem('activeTheme') || DEFAULT_THEME
-  );
+  const [activeTheme, setActiveTheme] = useState(() => {
+    const version = localStorage.getItem('themeVersion');
+    if (version !== '1999') {
+      localStorage.setItem('themeVersion', '1999');
+      localStorage.setItem('activeTheme', DEFAULT_THEME);
+      return DEFAULT_THEME;
+    }
+    return localStorage.getItem('activeTheme') || DEFAULT_THEME;
+  });
 
   useEffect(() => {
     applyTheme(activeTheme);
@@ -13,12 +19,17 @@ export function useTheme() {
 
   const resolveThemeName = (arg: string): string | undefined => {
     const themeMap: Record<string, string> = {
+      storm: 'Storm',
+      pavlov: 'St. Pavlov Foundation',
+      manus: 'Manus Vindicta',
+      vertin: "Vertin's Suitcase",
+      delphi: 'Delphi Blue',
       matrix: 'Matrix Green',
       neon: 'Neon Cyan',
       alert: 'Alert Red',
       purple: 'Deep Purple',
     };
-    return themeMap[arg] || THEMES.find((t) => t.name.toLowerCase().includes(arg))?.name;
+    return themeMap[arg.toLowerCase()] || THEMES.find((t) => t.name.toLowerCase().includes(arg.toLowerCase()))?.name;
   };
 
   return { activeTheme, setActiveTheme, themes: THEMES, resolveThemeName };

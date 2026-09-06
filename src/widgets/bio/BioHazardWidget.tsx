@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import WidgetShell from '@/components/WidgetShell';
 
 type BioHazardProps = {
   location: { lat: number; lon: number } | null;
@@ -83,20 +84,14 @@ const BioHazardWidget: React.FC<BioHazardProps> = ({ location, isCollapsed, onTo
   };
 
   return (
-    <div className="widget" style={isCollapsed ? { padding: '24px', overflow: 'hidden' } : { padding: '24px', display: 'flex', flexDirection: 'column' }}>
-      <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--accent-color)', paddingBottom: isCollapsed ? 0 : '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: 'var(--accent-color)', fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>BIO-HAZARD MONITOR</span>
-          {!aqiLoading && aqi && activeTab === 'aqi' && <span className="api-indicator">API ONLINE</span>}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
-          <button className="remove-btn" onClick={onRemove}>×</button>
-        </div>
-      </h3>
-
-      {!isCollapsed && (
-        <div className="widget-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <WidgetShell
+      title="BIO-HAZARD MONITOR"
+      status={aqiLoading ? 'loading' : 'online'}
+      isCollapsed={isCollapsed}
+      onToggleCollapse={onToggleCollapse}
+      onRemove={onRemove}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Tab bar */}
           <div style={{ display: 'flex', borderBottom: '1px solid rgba(0, 163, 224, 0.2)', paddingBottom: '8px', gap: '8px' }}>
             <button 
@@ -230,8 +225,7 @@ const BioHazardWidget: React.FC<BioHazardProps> = ({ location, isCollapsed, onTo
             </div>
           )}
         </div>
-      )}
-    </div>
+    </WidgetShell>
   );
 };
 

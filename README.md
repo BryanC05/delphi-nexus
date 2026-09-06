@@ -48,6 +48,7 @@ Open [http://localhost:5173](http://localhost:5173).
 |----------|---------|
 | `VITE_OPENWEATHER_API_KEY` | Weather, Bio-Hazard |
 | `VITE_GROQ_API_KEY` | AI Terminal |
+| `VITE_GROQ_MODEL` | AI Terminal model (defaults to `openai/gpt-oss-20b`) |
 | `VITE_NEWSAPI_API_KEY` | News Feed (global) |
 | `VITE_MEDIASTACK_API_KEY` | News Feed (alternate) |
 

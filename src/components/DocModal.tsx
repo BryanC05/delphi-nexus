@@ -105,74 +105,82 @@ const DocModal: React.FC<DocModalProps> = ({ isOpen, onClose }) => {
         left: 0,
         width: '100vw',
         height: '100vh',
-        background: 'rgba(0, 12, 29, 0.9)',
+        background: 'rgba(8, 10, 14, 0.88)',
         backdropFilter: 'blur(10px)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 2000,
         padding: '20px',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
       }}
     >
-      <div 
-        onClick={e => e.stopPropagation()}
+      <div
+        onClick={(e) => e.stopPropagation()}
         className="doc-modal-container"
         style={{
-          background: 'rgba(0, 30, 60, 0.95)',
-          border: '2px solid var(--accent-color)',
-          boxShadow: '0 0 25px rgba(0, 163, 224, 0.4)',
+          background: 'linear-gradient(135deg, rgba(18, 22, 31, 0.98) 0%, rgba(10, 13, 18, 0.99) 100%)',
+          border: '1px solid var(--brass-border)',
+          borderTop: '3px solid var(--accent-color)',
+          borderBottom: '3px solid var(--accent-color)',
+          boxShadow: '0 24px 64px rgba(0, 0, 0, 0.85), 0 0 32px rgba(197, 160, 89, 0.15)',
           width: '100%',
-          maxWidth: '850px',
+          maxWidth: '860px',
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: '0px',
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       >
         {/* Header */}
-        <div 
+        <div
           className="doc-modal-header"
           style={{
-            padding: '16px 24px',
-            borderBottom: '1px solid var(--accent-color)',
+            padding: '18px 24px',
+            borderBottom: '1px solid var(--brass-border)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: 'rgba(0, 163, 224, 0.05)'
+            background: 'rgba(197, 160, 89, 0.05)',
           }}
         >
           <div>
-            <h2 id="doc-modal-title" style={{ margin: 0, fontSize: '1.4rem', fontFamily: 'var(--font-p3r)', color: '#fff', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              📋 SYSTEM RESOURCES DIRECTORY
+            <h2
+              id="doc-modal-title"
+              style={{
+                margin: 0,
+                fontSize: '1.25rem',
+                fontFamily: 'var(--font-serif)',
+                letterSpacing: '2px',
+                color: 'var(--text-main)',
+                textTransform: 'uppercase',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              ◈ TIMEKEEPER ARCHIVES // CLASSIFIED DOSSIERS
             </h2>
-            <span style={{ fontSize: '0.65rem', color: 'var(--p3r-cyan)', fontFamily: 'var(--font-tech)', fontWeight: 'bold' }}>DELPHI-NEXUS CENTRAL RESOURCES ARCHIVE</span>
+            <span
+              style={{
+                fontSize: '0.68rem',
+                color: 'var(--accent-color)',
+                fontFamily: 'var(--font-mono)',
+                letterSpacing: '1px',
+                fontWeight: 'bold',
+              }}
+            >
+              CHRONOLOGICAL DOSSIER REGISTRY // INDEX 19.99
+            </span>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            style={{
-              background: 'transparent',
-              border: '1px solid var(--accent-color)',
-              color: 'var(--accent-color)',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
-              fontFamily: 'var(--font-tech)',
-              padding: '6px 12px',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--accent-color)';
-              e.currentTarget.style.color = '#000';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--accent-color)';
-            }}
+            className="r1999-btn"
+            style={{ padding: '6px 14px', fontSize: '0.75rem' }}
           >
-            ESCAPE [ESC] ×
+            DISMISS [ESC] ×
           </button>
         </div>
 

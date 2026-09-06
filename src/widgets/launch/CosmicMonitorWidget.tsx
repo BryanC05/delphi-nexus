@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import WidgetShell from '@/components/WidgetShell';
 
 type CosmicProps = {
   isCollapsed?: boolean;
@@ -106,20 +107,14 @@ const CosmicMonitorWidget: React.FC<CosmicProps> = ({ isCollapsed, onToggleColla
   }, [activeTab, apodData]);
 
   return (
-    <div className="widget" style={isCollapsed ? { padding: '24px', overflow: 'hidden' } : { padding: '24px', display: 'flex', flexDirection: 'column' }}>
-      <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--accent-color)', paddingBottom: isCollapsed ? 0 : '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>COSMIC MONITOR</span>
-          <span className="api-indicator" style={{ background: 'var(--p3r-blue-light)', color: '#000', border: 'none' }}>ORBITAL SECURE</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
-          <button className="remove-btn" onClick={onRemove}>×</button>
-        </div>
-      </h3>
-
-      {!isCollapsed && (
-        <div className="widget-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <WidgetShell
+      title="COSMIC MONITOR"
+      status="online"
+      isCollapsed={isCollapsed}
+      onToggleCollapse={onToggleCollapse}
+      onRemove={onRemove}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Tab Selection Row */}
           <div style={{ display: 'flex', borderBottom: '1px solid rgba(0, 163, 224, 0.2)', paddingBottom: '8px', gap: '8px' }}>
             <button 
@@ -260,8 +255,7 @@ const CosmicMonitorWidget: React.FC<CosmicProps> = ({ isCollapsed, onToggleColla
             </div>
           )}
         </div>
-      )}
-    </div>
+    </WidgetShell>
   );
 };
 

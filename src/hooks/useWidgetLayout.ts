@@ -30,6 +30,9 @@ function loadActiveWidgets(): string[] {
     parsed = parsed.map((w) => (w === 'media' ? 'anime' : w));
   }
   parsed = parsed.filter((w) => w !== 'radar' && w !== 'clock');
+  if (!parsed.includes('anime')) {
+    parsed.splice(1, 0, 'anime');
+  }
   parsed = Array.from(new Set(parsed));
   const enforced = enforceTopWidgets(parsed);
   localStorage.setItem('activeWidgets', JSON.stringify(enforced));

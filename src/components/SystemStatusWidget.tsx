@@ -44,17 +44,35 @@ const SystemStatusWidget: React.FC = () => {
   const currentPing = pingData.length > 0 ? pingData[pingData.length - 1].ping : 0;
 
   return (
-    <div className="system-status-widget" style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--p3r-blue-dark)', padding: '10px 20px', borderRadius: '0', borderLeft: '4px solid var(--p3r-blue-light)', boxShadow: '4px 4px 0px rgba(0,0,0,0.5)' }}>
-      <span className="system-status-label" style={{ color: '#fff', fontFamily: 'var(--font-p3r)', fontSize: '0.9rem', letterSpacing: '1px', textTransform: 'uppercase' }}>LINK_STABILITY</span>
-      <div className="system-status-chart" style={{ width: '80px', height: '28px' }}>
+    <div className="system-status-widget r1999-telemetry-widget">
+      <div className="r1999-telemetry-meta">
+        <span className="r1999-telemetry-indicator" />
+        <span className="system-status-label r1999-telemetry-title">RESONANCE</span>
+      </div>
+      <div className="system-status-chart" style={{ width: '75px', height: '24px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={pingData}>
             <YAxis domain={[0, 100]} hide />
-            <Area type="monotone" dataKey="ping" stroke="#fff" fill="var(--p3r-blue-light)" fillOpacity={0.4} isAnimationActive={false} />
+            <Area
+              type="monotone"
+              dataKey="ping"
+              stroke="var(--accent-color)"
+              fill="var(--accent-color)"
+              fillOpacity={0.25}
+              isAnimationActive={false}
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <span className="system-status-ping" style={{ color: currentPing > 60 ? '#fc8181' : '#fff', fontFamily: 'var(--font-p3r)', fontWeight: 'bold', fontSize: '1.2rem', minWidth: '55px', textAlign: 'right' }}>{currentPing}ms</span>
+      <span
+        className="system-status-ping r1999-telemetry-val"
+        style={{
+          color: currentPing > 100 ? '#e06c75' : 'var(--accent-color)',
+        }}
+      >
+        {currentPing}
+        <small>ms</small>
+      </span>
     </div>
   );
 };

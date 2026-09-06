@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import WidgetShell from '@/components/WidgetShell';
 
 type MorseProps = {
   isCollapsed?: boolean;
@@ -211,20 +212,14 @@ const MorseWidget: React.FC<MorseProps> = ({ isCollapsed, onToggleCollapse, onRe
   };
 
   return (
-    <div className="widget" style={isCollapsed ? { padding: '24px', overflow: 'hidden' } : { padding: '24px', display: 'flex', flexDirection: 'column' }}>
-      <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isCollapsed ? 0 : '16px', borderBottom: isCollapsed ? 'none' : '1px solid var(--accent-color)', paddingBottom: isCollapsed ? 0 : '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>MORSE CODE TRANSMITTER</span>
-          <span className="api-indicator">AUDIO ONLINE</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button className="collapse-btn" onClick={onToggleCollapse}>{isCollapsed ? '+' : '-'}</button>
-          <button className="remove-btn" onClick={onRemove}>×</button>
-        </div>
-      </h3>
-
-      {!isCollapsed && (
-        <div className="widget-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <WidgetShell
+      title="MORSE CODE TRANSMITTER"
+      status="online"
+      isCollapsed={isCollapsed}
+      onToggleCollapse={onToggleCollapse}
+      onRemove={onRemove}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Tab Selection */}
           <div style={{ display: 'flex', borderBottom: '1px solid rgba(0, 163, 224, 0.2)', paddingBottom: '8px', gap: '8px' }}>
             <button 
@@ -380,8 +375,7 @@ const MorseWidget: React.FC<MorseProps> = ({ isCollapsed, onToggleCollapse, onRe
             </div>
           )}
         </div>
-      )}
-    </div>
+    </WidgetShell>
   );
 };
 

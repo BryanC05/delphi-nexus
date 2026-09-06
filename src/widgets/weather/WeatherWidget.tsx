@@ -2,8 +2,23 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import WidgetShell from '@/components/WidgetShell';
 import './weather.css';
-import type { ForecastItem, WeatherData, WidgetShellProps } from '@/shared/types';
+import type { AqiData, ForecastItem, WeatherData, WidgetShellProps } from '@/shared/types';
 import { playClickSound, playHoverSound } from '@/shared/soundUtils';
+
+const getAqiColor = (index: number) => {
+  switch (index) {
+    case 1: return '#48bb78'; // Green (Good)
+    case 2: return '#ecc94b'; // Yellow (Fair)
+    case 3: return '#ed8936'; // Orange (Moderate)
+    case 4: return '#fc8181'; // Red (Poor)
+    case 5: return '#9f7aea'; // Purple (Hazardous)
+    default: return 'var(--text-muted)';
+  }
+};
+
+const getAqiText = (index: number) => {
+  return ['UNKNOWN', 'GOOD', 'FAIR', 'MODERATE', 'POOR', 'HAZARDOUS'][index] || 'UNKNOWN';
+};
 
 export default function WeatherWidget({
   location,
@@ -13,6 +28,7 @@ export default function WeatherWidget({
 }: WidgetShellProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [forecast, setForecast] = useState<ForecastItem[]>([]);
+  const [aqi, setAqi] = useState<AqiData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeLocation, setActiveLocation] = useState<string | null>(null);
@@ -49,6 +65,25 @@ export default function WeatherWidget({
 
         setWeather(weatherRes.data);
         setForecast(forecastRes.data.list.slice(0, 4));
+
+        const coord = weatherRes.data?.coord;
+        if (coord && typeof coord.lat === 'number' && typeof coord.lon === 'number') {
+          try {
+            const aqiRes = await axios.get('https://api.openweathermap.org/data/2.5/air_pollution', {
+              params: {
+                lat: coord.lat,
+                lon: coord.lon,
+                appid: import.meta.env.VITE_OPENWEATHER_API_KEY,
+              },
+            });
+            setAqi(aqiRes.data?.list?.[0] || null);
+          } catch (aqiErr) {
+            console.error('Error fetching AQI:', aqiErr);
+            setAqi(null);
+          }
+        } else {
+          setAqi(null);
+        }
       } catch (error) {
         console.error('Error fetching weather:', error);
       } finally {
@@ -98,33 +133,115 @@ export default function WeatherWidget({
         </div>
       ) : (
         <>
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', marginBottom: '18px' }}>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ENTER LOCATION..."
+              placeholder="SEARCH SPATIAL COORDINATES..."
               aria-label="Search weather location"
-              style={{ flexGrow: 1, background: 'rgba(0,0,0,0.3)', border: 'none', borderLeft: '4px solid var(--p3r-blue-light)', color: '#fff', padding: '8px 12px', fontFamily: 'var(--font-tech)', outline: 'none', fontSize: '0.9rem' }}
+              style={{
+                flexGrow: 1,
+                background: 'rgba(13, 16, 23, 0.85)',
+                border: '1px solid var(--brass-border)',
+                borderLeft: '3px solid var(--accent-color)',
+                color: 'var(--text-main)',
+                padding: '8px 14px',
+                fontFamily: 'var(--font-serif)',
+                outline: 'none',
+                fontSize: '0.85rem',
+                letterSpacing: '1px',
+              }}
             />
-            <button type="submit" onMouseEnter={playHoverSound} className="news-search-button" style={{ width: 'auto' }}>
-              SEARCH
+            <button type="submit" onMouseEnter={playHoverSound} className="r1999-btn" style={{ padding: '8px 16px' }}>
+              LOCATE
             </button>
             {activeLocation && (
-              <button type="button" onClick={resetLocation} onMouseEnter={playHoverSound} style={{ background: 'transparent', color: '#fc8181', border: '1px solid #fc8181', padding: '8px 12px', cursor: 'pointer' }}>
+              <button
+                type="button"
+                onClick={resetLocation}
+                onMouseEnter={playHoverSound}
+                className="r1999-btn-icon btn-remove"
+                style={{ width: 'auto', padding: '0 12px', fontSize: '0.8rem' }}
+                title="Reset to initial location"
+              >
                 RESET
               </button>
             )}
           </form>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'var(--p3r-blue-dark)', padding: '20px', borderLeft: '8px solid var(--p3r-blue-light)', marginBottom: '16px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '18px',
+              background: 'rgba(13, 16, 23, 0.75)',
+              padding: '18px 20px',
+              border: '1px solid var(--brass-border)',
+              borderLeft: '4px solid var(--accent-color)',
+              marginBottom: '16px',
+            }}
+          >
             {weather.weather[0]?.icon && (
-              <img src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`} alt="" style={{ width: '70px', height: '70px' }} />
+              <img
+                src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`}
+                alt=""
+                style={{ width: '64px', height: '64px', filter: 'sepia(30%)' }}
+              />
             )}
             <div>
-              <span style={{ fontSize: '3rem', fontWeight: 700, color: 'var(--accent-color)' }}>{Math.round(weather.main.temp)}°C</span>
-              <div style={{ textTransform: 'uppercase', marginTop: '8px' }}>{weather.weather[0]?.description}</div>
+              <span style={{ fontSize: '2.6rem', fontWeight: 700, color: 'var(--gold-light)', fontFamily: 'var(--font-mono)' }}>
+                {Math.round(weather.main.temp)}°C
+              </span>
+              <div style={{ textTransform: 'uppercase', marginTop: '4px', fontFamily: 'var(--font-serif)', letterSpacing: '1px', color: 'var(--text-muted)' }}>
+                {weather.weather[0]?.description}
+              </div>
             </div>
           </div>
+          {aqi && (
+            <div className="weather-aqi-container">
+              <div className="weather-aqi-header">
+                <div className="weather-aqi-label-wrap">
+                  <span className="weather-aqi-title">Atmospheric AQI</span>
+                  <span
+                    className="weather-aqi-badge"
+                    style={{
+                      color: getAqiColor(aqi.main.aqi),
+                      borderColor: getAqiColor(aqi.main.aqi),
+                      boxShadow: `0 0 8px ${getAqiColor(aqi.main.aqi)}40`,
+                    }}
+                  >
+                    {getAqiText(aqi.main.aqi)} ({aqi.main.aqi}/5)
+                  </span>
+                </div>
+              </div>
+              <div className="weather-aqi-metrics">
+                <div className="weather-aqi-metric">
+                  <span className="metric-name">PM2.5</span>
+                  <span className="metric-val">
+                    {aqi.components.pm2_5} <small>μg/m³</small>
+                  </span>
+                </div>
+                <div className="weather-aqi-metric">
+                  <span className="metric-name">PM10</span>
+                  <span className="metric-val">
+                    {aqi.components.pm10} <small>μg/m³</small>
+                  </span>
+                </div>
+                <div className="weather-aqi-metric">
+                  <span className="metric-name">O₃</span>
+                  <span className="metric-val">
+                    {aqi.components.o3} <small>μg/m³</small>
+                  </span>
+                </div>
+                <div className="weather-aqi-metric">
+                  <span className="metric-name">NO₂</span>
+                  <span className="metric-val">
+                    {aqi.components.no2} <small>μg/m³</small>
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
           {forecast.length > 0 && (
             <div className="forecast-container">
               <h4 className="forecast-title">Upcoming (12 Hrs)</h4>

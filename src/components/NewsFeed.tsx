@@ -289,64 +289,94 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
     <>
       <div ref={newsHeaderRef} className="news-header">
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <h2 
               className={`section-title tab ${activeTab === 'feed' ? 'active' : ''}`} 
               onClick={() => { playClickSound(); setActiveTab('feed'); }}
               onMouseEnter={playHoverSound}
-              style={{ 
-                background: activeTab === 'feed' ? 'var(--p3r-blue-light)' : 'transparent',
-                color: activeTab === 'feed' ? '#000' : '#fff',
-                padding: '10px 30px',
+              style={{
+                background: activeTab === 'feed' ? 'linear-gradient(135deg, var(--gold-light), var(--accent-color))' : 'rgba(18, 22, 31, 0.8)',
+                color: activeTab === 'feed' ? '#0d1017' : 'var(--text-main)',
+                padding: '8px 24px',
                 margin: 0,
-                fontFamily: 'var(--font-p3r)',
-                border: activeTab === 'feed' ? 'none' : '1px solid var(--p3r-blue-light)',
-                textDecoration: 'none'
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '1.5px',
+                border: '1px solid var(--brass-border)',
+                textDecoration: 'none',
+                cursor: 'pointer',
+                clipPath: 'polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%)',
+                boxShadow: activeTab === 'feed' ? '0 0 12px rgba(197, 160, 89, 0.35)' : 'none',
+                transition: 'all 0.2s ease',
               }}
-            >Feed</h2>
-            <h2 
-              className={`section-title tab ${activeTab === 'saved' ? 'active' : ''}`} 
+            >
+              DISPATCH // I
+            </h2>
+            <h2
+              className={`section-title tab ${activeTab === 'saved' ? 'active' : ''}`}
               onClick={() => { playClickSound(); setActiveTab('saved'); }}
               onMouseEnter={playHoverSound}
-              style={{ 
-                background: activeTab === 'saved' ? 'var(--p3r-blue-light)' : 'transparent',
-                color: activeTab === 'saved' ? '#000' : '#fff',
-                padding: '10px 30px',
+              style={{
+                background: activeTab === 'saved' ? 'linear-gradient(135deg, var(--gold-light), var(--accent-color))' : 'rgba(18, 22, 31, 0.8)',
+                color: activeTab === 'saved' ? '#0d1017' : 'var(--text-main)',
+                padding: '8px 24px',
                 margin: 0,
-                fontFamily: 'var(--font-p3r)',
-                border: activeTab === 'saved' ? 'none' : '1px solid var(--p3r-blue-light)',
-                textDecoration: 'none'
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                letterSpacing: '1.5px',
+                border: '1px solid var(--brass-border)',
+                textDecoration: 'none',
+                cursor: 'pointer',
+                clipPath: 'polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%)',
+                boxShadow: activeTab === 'saved' ? '0 0 12px rgba(197, 160, 89, 0.35)' : 'none',
+                transition: 'all 0.2s ease',
               }}
-            >Saved ({bookmarks.length})</h2>
+            >
+              ARCHIVE // II ({bookmarks.length})
+            </h2>
           </div>
 
-          <div style={{ display: 'flex', background: 'var(--p3r-blue-dark)', padding: '4px', borderLeft: '4px solid var(--p3r-blue-light)' }}>
-            <button 
+          <div style={{ display: 'flex', background: 'rgba(13, 16, 23, 0.85)', padding: '3px', border: '1px solid var(--brass-border)', clipPath: 'polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px)' }}>
+            <button
               onClick={() => { playClickSound(); setNewsMode('global'); setPage(1); setQueryInput(''); setActiveQuery(''); newsHeaderRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
               onMouseEnter={playHoverSound}
               style={{
-                background: newsMode === 'global' ? 'var(--p3r-blue-light)' : 'transparent',
-                color: newsMode === 'global' ? '#000' : '#fff',
+                background: newsMode === 'global' ? 'var(--accent-color)' : 'transparent',
+                color: newsMode === 'global' ? '#0d1017' : 'var(--text-muted)',
                 border: 'none',
-                padding: '8px 20px',
-                fontFamily: 'var(--font-p3r)',
+                padding: '6px 16px',
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 700,
+                letterSpacing: '1px',
                 cursor: 'pointer',
-                fontSize: '0.9rem'
+                fontSize: '0.78rem',
+                clipPath: 'polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%)',
+                transition: 'all 0.2s ease',
               }}
-            >GLOBAL</button>
-            <button 
+            >
+              GLOBAL
+            </button>
+            <button
               onClick={() => { playClickSound(); setNewsMode('indonesia'); setPage(1); setQueryInput(''); setActiveQuery(''); newsHeaderRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
               onMouseEnter={playHoverSound}
               style={{
-                background: newsMode === 'indonesia' ? 'var(--p3r-blue-light)' : 'transparent',
-                color: newsMode === 'indonesia' ? '#000' : '#fff',
+                background: newsMode === 'indonesia' ? 'var(--accent-color)' : 'transparent',
+                color: newsMode === 'indonesia' ? '#0d1017' : 'var(--text-muted)',
                 border: 'none',
-                padding: '8px 20px',
-                fontFamily: 'var(--font-p3r)',
+                padding: '6px 16px',
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 700,
+                letterSpacing: '1px',
                 cursor: 'pointer',
-                fontSize: '0.9rem'
+                fontSize: '0.78rem',
+                clipPath: 'polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%)',
+                transition: 'all 0.2s ease',
               }}
-            >INDONESIA</button>
+            >
+              INDONESIA
+            </button>
           </div>
         </div>
         
@@ -387,12 +417,12 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
                 )}
               </div>
               <div className="news-search-wrapper">
-                  <input type="text" className="news-search-input" placeholder="Search keywords..." value={queryInput} onChange={(e) => setQueryInput(e.target.value)} onMouseEnter={playHoverSound} style={{ borderRadius: 0, borderLeft: '4px solid var(--p3r-blue-light)' }}/>
+                  <input type="text" className="news-search-input" placeholder="Search keywords..." value={queryInput} onChange={(e) => setQueryInput(e.target.value)} onMouseEnter={playHoverSound} />
                   <button type="submit" className="news-search-button" onMouseEnter={playHoverSound}>Search</button>
               </div>
             </form>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontFamily: 'var(--font-p3r)', textTransform: 'uppercase' }}>Links:</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', fontFamily: 'var(--font-mono)', letterSpacing: '1.5px', textTransform: 'uppercase' }}>CHRONO-LINKS:</span>
               {(newsMode === 'global' ? ['Cybercrime', 'Cybersecurity', 'Artificial Intelligence', 'Space Exploration'] : ['Politik', 'Ekonomi', 'Olahraga', 'Teknologi']).map(topic => (
                 <button
                   key={topic}
@@ -406,17 +436,19 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
                   }}
                   onMouseEnter={playHoverSound}
                   style={{
-                    background: activeQuery === topic ? 'var(--p3r-blue-light)' : 'var(--p3r-blue-dark)',
-                    border: 'none',
-                    borderLeft: `4px solid ${activeQuery === topic ? '#fff' : 'var(--p3r-blue-light)'}`,
-                    color: '#fff',
-                    padding: '6px 15px',
-                    borderRadius: '0',
-                    fontSize: '0.85rem',
-                    fontFamily: 'var(--font-p3r)',
+                    background: activeQuery === topic ? 'linear-gradient(135deg, var(--gold-light), var(--accent-color))' : 'rgba(18, 22, 31, 0.85)',
+                    color: activeQuery === topic ? '#0d1017' : 'var(--text-main)',
+                    border: '1px solid var(--brass-border)',
+                    padding: '5px 14px',
+                    fontSize: '0.76rem',
+                    fontFamily: 'var(--font-serif)',
+                    fontWeight: 600,
+                    letterSpacing: '1px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    textTransform: 'uppercase'
+                    textTransform: 'uppercase',
+                    clipPath: 'polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%)',
+                    boxShadow: activeQuery === topic ? '0 0 10px rgba(197, 160, 89, 0.35)' : 'none'
                   }}
                 >
                   {topic}
@@ -460,31 +492,33 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ countryCode, onNewsUpdate, searchTr
           {displayArticles.map((article, index) => {
             const isSaved = bookmarks.some(b => b.url === article.url);
             return (
-            <a key={index} href={article.url} target="_blank" rel="noopener noreferrer" className="news-card" onMouseEnter={playHoverSound}>
-              {article.imageUrl && (
-                <div className="news-image-container">
-                  <img src={article.imageUrl} alt="News thumbnail" className="news-image" />
-                </div>
-              )}
-              <div className="news-content">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                  <h3 className="news-title">{article.title}</h3>
-                  <button className={`bookmark-btn ${isSaved ? 'saved' : ''}`} onClick={(e) => toggleBookmark(article, e)}>
-                    {isSaved ? '★' : '☆'}
-                  </button>
-                </div>
-                <p className="news-desc">{article.description}</p>
-                <div className="news-meta">
-                  <span className="news-source">{article.sourceName}</span>
-                  <span className="news-date">
-                    {new Date(article.publishedAt).toLocaleDateString(undefined, {
-                      month: 'short', day: 'numeric', year: 'numeric'
-                    })}
-                  </span>
-                </div>
+              <div key={index} className="news-card-wrapper">
+                <a href={article.url} target="_blank" rel="noopener noreferrer" className="news-card" onMouseEnter={playHoverSound}>
+                  {article.imageUrl && (
+                    <div className="news-image-container">
+                      <img src={article.imageUrl} alt="News thumbnail" className="news-image" />
+                    </div>
+                  )}
+                  <div className="news-content">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                      <h3 className="news-title">{article.title}</h3>
+                      <button className={`bookmark-btn ${isSaved ? 'saved' : ''}`} onClick={(e) => toggleBookmark(article, e)}>
+                        {isSaved ? '★' : '☆'}
+                      </button>
+                    </div>
+                    <p className="news-desc">{article.description}</p>
+                    <div className="news-meta">
+                      <span className="news-source">{article.sourceName}</span>
+                      <span className="news-date">
+                        {new Date(article.publishedAt).toLocaleDateString(undefined, {
+                          month: 'short', day: 'numeric', year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </a>
               </div>
-            </a>
-            )
+            );
           })}
         </div>
         

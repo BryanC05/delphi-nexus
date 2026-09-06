@@ -16,6 +16,7 @@ type AITerminalWidgetProps = {
 };
 
 const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, contextData, onCommand }) => {
+  const modelName = import.meta.env.VITE_GROQ_MODEL || 'openai/gpt-oss-20b';
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     { role: 'system', content: 'DATA UPLINK ESTABLISHED. WELCOME TO THE TERMINAL.' }
@@ -66,7 +67,7 @@ const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, co
       const response = await axios.post(
         'https://api.groq.com/openai/v1/chat/completions',
         {
-          model: 'llama-3.1-8b-instant',
+          model: modelName,
           messages: [
             { role: 'system', content: `You are a highly advanced system AI. Keep answers concise, clear, and professional. You now have access to specialized INDONESIA DATA LINKS (CNN Indonesia, CNBC Indonesia). CURRENT DASHBOARD DATA: ${contextData || 'No data available.'}` },
             { role: 'user', content: userMsg }
@@ -98,6 +99,7 @@ const AITerminalWidget: React.FC<AITerminalWidgetProps> = ({ isOpen, onClose, co
         <div className="ai-sidebar-title-container">
           <h3>TERMINAL_AI</h3>
           <span className="api-indicator online">ONLINE</span>
+          <span className="ai-model-indicator" title={`Active model: ${modelName}`}>MODEL: {modelName}</span>
         </div>
         <button type="button" onClick={() => { playClickSound(); onClose(); }} className="ai-close-btn" aria-label="Close AI terminal">×</button>
       </div>
